@@ -1,0 +1,106 @@
+{
+  "definitions": [
+    {
+      "title": "Lottie Player",
+      "id": "lottie-player",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Lottie Player",
+              "model": "lottie-player"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "lottie-player",
+      "fields": [
+        {
+          "component": "text-area",
+          "valueType": "string",
+          "description": "URL to the Lottie animation JSON file.",
+          "name": "animation",
+          "label": "Animation URL",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "name": "lottieSelect",
+          "label": "Lottie Animation",
+          "options": [
+            {
+              "name": "default",
+              "value": ""
+            },
+            {
+              "name": "The World Is Better",
+              "value": "/lottie/the-world-is-better.json"
+            }
+          ]
+        },
+        {
+          "component": "boolean",
+          "valueType": "boolean",
+          "name": "autoplay",
+          "label": "Autoplay",
+          "value": true
+        },
+        {
+          "component": "boolean",
+          "valueType": "boolean",
+          "name": "loop",
+          "label": "Loop",
+          "value": true
+        },
+        {
+          "component": "boolean",
+          "valueType": "boolean",
+          "name": "controls",
+          "label": "Controls",
+          "value": false
+        },
+        {
+          "component": "text-input",
+          "valueType": "string",
+          "name": "background",
+          "label": "Background (e.g. transparent)",
+          "value": "transparent"
+        },
+        {
+          "component": "number",
+          "valueType": "number",
+          "name": "speed",
+          "label": "Speed (e.g. 1)",
+          "value": 1
+        },
+        {
+          "component": "text-input",
+          "valueType": "string",
+          "name": "width",
+          "label": "Width (e.g. 320px or 100%)",
+          "value": ""
+        },
+        {
+          "component": "text-input",
+          "valueType": "string",
+          "name": "height",
+          "label": "Height (e.g. 320px)",
+          "value": ""
+        },
+        {
+          "component": "text-input",
+          "valueType": "string",
+          "name": "ariaLabel",
+          "label": "ARIA label",
+          "value": "Animation"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

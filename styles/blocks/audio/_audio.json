@@ -1,0 +1,68 @@
+{
+  "definitions": [
+    {
+      "title": "Audio",
+      "id": "audio",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Audio",
+              "model": "audio",
+              "filter": "audio"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Source",
+      "id": "source",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Source",
+              "model": "source"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "audio",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "audioFallback",
+          "label": "Audio fallback Text",
+          "value": "Your browser does not support the audio element."
+        }
+      ]
+    },
+    {
+      "id": "source",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "sourceURL",
+          "label": "Source URL",
+          "multi": false,
+          "rootPath": "/content/dam/otsuka-xwalk-boilerplate"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "audio",
+      "components": ["source"]
+    }
+  ]
+}

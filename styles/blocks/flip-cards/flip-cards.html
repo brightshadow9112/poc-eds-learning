@@ -1,0 +1,22 @@
+<template>
+  <ul>
+    <li data-fly-repeat.row="block.children" data-fly-attributes="cardRowAttributes">
+      <div class="flip-card-container">
+        <div class="flip-card">
+          <div class="flip-card-front">
+            <div data-fly-content="transformFrontContent" data-fly-unwrap></div>
+            <button class="flip-button flip-to-back" aria-label="Flip to see more information">
+              <span class="flip-icon">↩</span>
+            </button>
+          </div>
+          <div class="flip-card-back">
+            <div data-fly-content="transformBackContent" data-fly-unwrap></div>
+            <button class="flip-button flip-to-front" aria-label="Flip back">
+              <span class="flip-icon">↩</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </li>
+  </ul>
+</template>

@@ -1,0 +1,98 @@
+.anchor-menu-link {
+    align-items: center;
+    background-color: rgb(80 255 197);
+    border-bottom: 0.6667px solid rgb(40 43 58);
+    border-radius: 14px;
+    border-image: none 100% 1 0 stretch;
+    border-left: 0.6667px solid rgb(40 43 58);
+    border-right: 0.6667px solid rgb(40 43 58);
+    border-top: 0.6667px solid rgb(40 43 58);
+    box-sizing: border-box;
+    color: rgb(40 43 58);
+    gap: 10px;
+    cursor: pointer;
+    display: flex;
+    font-family: "Vulf Sans", sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    height: 58px;
+    justify-content: space-between;
+    line-height: 27px;
+    margin-top: 12px;
+    max-width: 373px;
+    min-height: 58px;
+    padding: 6px 10px 6px 20px;
+    text-align: center;
+    text-decoration: none solid rgb(40 43 58) auto;
+    text-size-adjust: 100%;
+    transition-behavior: normal;
+    transition: all 0.4s ease-out 0s;
+    user-select: none;
+    vertical-align: middle;
+    width: 373px;
+}
+
+.anchor-menu-link:hover {
+    box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+    text-decoration: none;
+    background-color: #a7ffe2;
+    border-color: #62ffcb;
+}
+
+.anchor-menu-link:active {
+    transform: translateY(1px);
+}
+
+.anchor-menu-icon {
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: rgb(255 255 255);
+    background-image: none;
+    background-origin: padding-box;
+    background-position-x: 0%;
+    background-position-y: 0%;
+    background-repeat: repeat;
+    background-size: auto;
+    border-bottom: 0.6667px solid rgb(40 43 58);
+    border-radius: 9px;
+    border-image: none 100% 1 0 stretch;
+    border-left: 0.6667px solid rgb(40 43 58);
+    border-right: 0.6667px solid rgb(40 43 58);
+    border-top: 0.6667px solid rgb(40 43 58);
+    box-sizing: border-box;
+    color: rgb(35 39 52);
+    cursor: pointer;
+    display: block;
+    font-family: "Vulf Sans", sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    height: 37px;
+    line-height: 27px;
+    overflow-clip-margin: content-box;
+    overflow: hidden;
+    padding: 10px;
+    text-align: center;
+    text-size-adjust: 100%;
+    user-select: none;
+    vertical-align: middle;
+    width: 37px;
+}
+
+.anchor-menu-text {
+    box-sizing: border-box;
+    color: rgb(40 43 58);
+    cursor: pointer;
+    display: block;
+    font-family: "Vulf Sans", sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 27px;
+    text-align: left;
+    text-size-adjust: 100%;
+    user-select: none;
+    width: auto;
+    height: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+}

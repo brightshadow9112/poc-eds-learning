@@ -1,0 +1,12 @@
+.block.audio div {
+    display: none;
+}
+
+.block.audio {
+    border: 3px solid black;
+    padding: 10px;
+}
+
+.block audio {
+    width: 100%;
+}

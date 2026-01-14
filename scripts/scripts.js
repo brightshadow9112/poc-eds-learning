@@ -13,6 +13,24 @@ import {
 } from './aem.js';
 
 /**
+ * Detects if Universal Editor is active
+ * @returns {boolean} true if UE is active
+ */
+export function isUniversalEditorActive() {
+  return window.universalEditorActive
+    || window.UniversalEditorEmbedded
+    || (window.frames && window.frames[0] && window.frames[0].window
+      && window.frames[0].window.UniversalEditorEmbedded)
+    || document.body.classList.contains('ue-active')
+    || document.documentElement.classList.contains('ue-active')
+    || document.body.classList.contains('aue-active')
+    || document.documentElement.classList.contains('aue-active')
+    || window.location.pathname.includes('/editor.html/')
+    || window.location.search.includes('editor=1')
+    || !!document.querySelector('[data-aue-resource]');
+}
+
+/**
  * Moves all the attributes from a given elmenet to another given element.
  * @param {Element} from the element to copy attributes from
  * @param {Element} to the element to copy attributes to
@@ -25,7 +43,7 @@ export function moveAttributes(from, to, attributes) {
   attributes.forEach((attr) => {
     const value = from.getAttribute(attr);
     if (value) {
-      to?.setAttribute(attr, value);
+      to.setAttribute(attr, value);
       from.removeAttribute(attr);
     }
   });
@@ -109,11 +127,24 @@ async function loadEager(doc) {
   }
 }
 
+function autolinkModals(doc) {
+  doc.addEventListener('click', async (e) => {
+    const origin = e.target.closest('a');
+    if (origin && origin.href && origin.href.includes('/modals/')) {
+      e.preventDefault();
+      const { openModal } = await import(`${window.hlx.codeBasePath}/blocks/modal/modal.js`);
+      openModal(origin.href);
+    }
+  });
+}
+
 /**
  * Loads everything that doesn't need to be delayed.
  * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
+  autolinkModals(doc);
+
   const main = doc.querySelector('main');
   await loadSections(main);
 
@@ -142,6 +173,20 @@ async function loadPage() {
   await loadEager(document);
   await loadLazy(document);
   loadDelayed();
+}
+
+/**
+ * Custom functions
+ */
+export function getProps(block, config) {
+  return Array.from(block.children).map((el, index) => {
+    if (config?.picture) {
+      return el.innerHTML.includes('picture') ? el.querySelector('picture') : el.innerText.trim();
+    } if (config?.index && config?.index.includes(index)) {
+      return el;
+    }
+    return el.innerHTML.includes('picture') ? el.querySelector('img').src.trim() : el.innerText.trim();
+  });
 }
 
 loadPage();

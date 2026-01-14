@@ -1,0 +1,218 @@
+
+:root {
+  --title-font-family: "Vulf Sans", sans-serif;
+}
+
+
+.section.sovm-hero-container,
+.sovm-hero-container {
+  padding: 0;
+}
+
+.sovm-hero-wrapper {
+  padding: 0;
+  max-width: unset;
+}
+
+.hero,
+.sovm-hero.block {
+  position: relative;
+  padding: 0;
+  min-height: 300px;
+  text-align: center;
+  max-width: none;
+  margin: 0;
+  width: 100%;
+}
+
+.hero h1,
+.sovm-hero.block h1 {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  color: var(--background-color);
+}
+
+.hero picture,
+.sovm-hero.block picture {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  object-fit: cover;
+  box-sizing: border-box;
+}
+
+.hero img,
+.sovm-hero.block img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.hero .cmp-text,
+.sovm-hero.block .cmp-text {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center start;
+  padding: 48px;
+  text-align: left;
+  pointer-events: auto;
+  color: var(--background-color);
+  font-family: var(--title-font-family) !important;
+}
+
+.hero .cmp-text > *,
+.sovm-hero.block .cmp-text > * {
+  width: min(90vw, 330px);
+  margin: 0;
+  color: var(--background-color);
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.hero .cmp-text h1,
+.hero .cmp-text h2,
+.hero .cmp-text h3,
+.hero .cmp-text h4,
+.hero .cmp-text h5,
+.hero .cmp-text h6,
+.sovm-hero.block .cmp-text h1,
+.sovm-hero.block .cmp-text h2,
+.sovm-hero.block .cmp-text h3,
+.sovm-hero.block .cmp-text h4,
+.sovm-hero.block .cmp-text h5,
+.sovm-hero.block .cmp-text h6 {
+  color: var(--background-color);
+  margin: 0 0 0.5em;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.hero .cmp-text p,
+.sovm-hero.block .cmp-text p {
+  margin: 0.5em 0 0;
+  line-height: 1.55;
+  color: var(--background-color);
+}
+
+.hero .cmp-text a,
+.sovm-hero.block .cmp-text a {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+
+.hero .cmp-text a:hover,
+.hero .cmp-text a:focus,
+.sovm-hero.block .cmp-text a:hover,
+.sovm-hero.block .cmp-text a:focus {
+  text-decoration: none;
+  color: var(--link-hover-color);
+}
+
+.hero .cmp-text ul,
+.hero .cmp-text ol,
+.sovm-hero.block .cmp-text ul,
+.sovm-hero.block .cmp-text ol {
+  display: block;
+  text-align: left;
+  margin: 0.75em 0 0;
+  padding-left: 1.25em;
+  color: var(--background-color);
+}
+
+.hero .cmp-text li,
+.sovm-hero.block .cmp-text li {
+  margin: 0.5em 0;
+}
+
+.hero .cmp-text blockquote,
+.sovm-hero.block .cmp-text blockquote {
+  display: block;
+  margin: 1em 0 0;
+  padding: 0.5em 1em;
+  border-left: 4px solid var(--dark-color);
+  color: var(--background-color);
+  background: var(--text-color);
+  opacity: 0.95;
+}
+
+.hero .cmp-text img,
+.sovm-hero.block .cmp-text img {
+  max-width: 100%;
+  height: auto;
+  display: inline-block;
+  margin: 0.5em 0 0;
+}
+
+.hero-video-background iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+
+.hero .hero-player,
+.sovm-hero.block .hero-player {
+  position: relative;
+  z-index: 0;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+}
+
+.hero .hero-player iframe,
+.sovm-hero.block .hero-player iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  pointer-events: auto;
+}
+
+.hero-video-background {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%;
+}
+
+
+.hero video,
+.sovm-hero.block video {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  border: 0;
+  display: block;
+}
+
+.hero::before,
+.sovm-hero.block::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-color, #00000040);
+  z-index: 1;
+}
+
+@media (width >= 900px) {
+  .hero,
+  .sovm-hero.block {
+    padding: 0;
+  }
+  
+  .hero .cmp-text,
+  .sovm-hero.block .cmp-text {
+    padding: 64px 72px;
+  }
+}

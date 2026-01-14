@@ -1,0 +1,192 @@
+.flip-cards > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(257px, 1fr)); /* Original width */
+  grid-gap: 24px;
+  height: 100%;
+  grid-auto-rows: minmax(400px, auto); /* Minimum row height with expansion */
+}
+
+/* Content styling */
+.flip-cards-card-body,
+.flip-cards-card-back-body {
+  margin: 16px;
+  margin-right: 24px; /* Extra margin on right side */
+  padding-bottom: 50px; /* More space for button below */
+  width: calc(100% - 40px); /* Adjust width for increased right margin */
+  overflow-y: visible; /* Make sure content is fully visible */
+}
+
+/* Force minimum height on content */
+.flip-card-front .flip-cards-card-body,
+.flip-card-back .flip-cards-card-back-body {
+  min-height: 100px;
+}
+
+.flip-cards > ul > li {
+  background-color: var(--background-color);
+  height: auto; /* Allow height to be determined by content */
+  min-height: 400px; /* Set minimum height */
+}
+
+/* Container to maintain consistent dimensions */
+.flip-card-container {
+  perspective: 1000px;
+  height: 100%;
+  min-height: 400px;
+  width: 100%;
+  position: relative;
+}
+
+/* Main flip card element */
+.flip-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
+  min-height: 400px; /* Ensure minimum height */
+}
+
+/* Universal Editor support */
+.universal-editor .flip-card {
+  transform-style: flat;
+}
+
+/* Apply the flip animation when the container has the flipped class */
+.flip-card-container.flipped .flip-card {
+  transform: rotateY(180deg);
+}
+
+/* Common styles for both sides */
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border: 1px solid #dadada;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-color);
+  overflow: visible; /* Allow content to be visible */
+  box-sizing: border-box; /* Include padding in element's height */
+}
+
+/* Front side styling */
+.flip-card-front {
+  z-index: 2;
+  top: 0;
+  left: 0;
+}
+
+/* Back side styling - start rotated */
+.flip-card-back {
+  transform: rotateY(180deg);
+  z-index: 1;
+  top: 0;
+  left: 0;
+}
+
+.flip-cards-card-image {
+  line-height: 0;
+  width: 100%;
+}
+
+.flip-cards-card-image img,
+.flip-cards-card-image picture img, 
+.flip-cards > ul > li img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block; /* Remove any inline spacing */
+}
+
+/* Flip button styling */
+.flip-button {
+  background-color: var(--color-accent, #0056b3);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  bottom: 10px;
+  right: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+  z-index: 5; /* Ensure button is on top of everything */
+  margin: 0; /* Reset any margin */
+  padding: 0; /* Reset any padding */
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%); /* Add slight shadow for better visibility */
+}
+
+.flip-button:hover {
+  background-color: var(--color-accent-hover, #629ddd);
+}
+
+.flip-button:focus {
+  outline: 2px solid var(--color-accent, #0056b3);
+  outline-offset: 2px;
+}
+
+/* Flip icon styling */
+.flip-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.flip-to-back .flip-icon {
+  transform: scaleX(-1);
+}
+
+/* Button area to ensure proper spacing */
+.flip-card-front::after,
+.flip-card-back::after {
+  content: '';
+  display: block;
+  height: 40px;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background-color: var(--background-color);
+}
+
+/* Universal Editor support - other styles */
+.universal-editor .flip-card-back {
+  position: relative;
+  transform: none;
+  margin-top: 20px;
+}
+
+.universal-editor .flip-button {
+  display: none;
+}
+
+/* Style paragraphs within card text areas */
+.front-text p,
+.back-text p {
+  margin: 0 1.5em 0.85em 0;
+  line-height: 1.4;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.front-text p:last-child,
+.back-text p:last-child {
+  margin-bottom: 16px;
+}
+
+/* Additional styling to ensure text stays within card borders */
+.front-text,
+.back-text {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}

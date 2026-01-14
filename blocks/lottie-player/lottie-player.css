@@ -1,0 +1,11 @@
+.block.lottie-player .lottie-player-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.block.lottie-player lottie-player {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+}

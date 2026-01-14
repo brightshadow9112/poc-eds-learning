@@ -1,0 +1,77 @@
+:root {
+  /* colors */
+  
+/* <<<<<<< HEAD */
+  --background-color: white;
+  --light-color: #f8f8f8;
+  --dark-color: #505050;
+  --text-color: #131313;
+  --link-color: #3b63fb;
+  --link-hover-color: #1d3ecf;
+  --green-color: #37d737;
+  --darkblue-color: #00008b;
+  --white-color: #fdfdfd;
+  --lightblue-color: #add8e6;
+
+
+  
+/* ======= */
+  --color-brand-green: #50FFC5;
+  --color-white: #FFF;
+  --color-dark: #232734;
+  --color-brand-green-25: #A7FFE2;
+
+  /* --background-color: var(--color-white); */
+
+  /* --text-color: var(--color-dark);
+  --link-color: var(--color-brand-green);
+  --link-hover-color: var(--color-brand-green-25); */
+
+/* >>>>>>> 73935e6237520a49c843d17be89f2f812db03aec */
+
+  /* fonts */
+  --body-font-family: 'Vulf Sans', vulf-sans-fallback, sans-serif;
+  --heading-font-family: 'Vulf Sans', vulf-sans-fallback, sans-serif;
+
+  /* desktop typography - from Figma */
+  --desktop-h1-size: 60px;
+  --desktop-h1-line-height: 68px;
+  --desktop-h1-weight: 700;
+  --desktop-h2-size: 32px;
+  --desktop-h2-line-height: 40px;
+  --desktop-h2-weight: 700;
+  --desktop-body-size: 18px;
+  --desktop-body-line-height: 100%;
+  --desktop-body-weight: 400;
+  --desktop-body-link-size: 18px;
+  --desktop-body-link-line-height: 100%;
+  --desktop-body-link-weight: 500;
+
+  /* mobile typography - from Figma */
+  --mobile-footnote-size: 12px;
+  --mobile-footnote-line-height: 18px;
+  --mobile-footnote-weight: 400;
+
+  /* legacy body sizes for compatibility */
+  --body-font-size-m: var(--desktop-body-size);
+  --body-font-size-s: 16px;
+  --body-font-size-xs: 14px;
+
+  /* legacy heading sizes for compatibility */
+  --heading-font-size-xxl: var(--desktop-h1-size);
+  --heading-font-size-xl: 44px;
+  --heading-font-size-l: var(--desktop-h2-size);
+  --heading-font-size-m: 27px;
+  --heading-font-size-s: 24px;
+  --heading-font-size-xs: 22px;
+
+  /* nav height */
+  --nav-height: 64px;
+}
+
+/* fallback fonts */
+@font-face {
+  font-family: vulf-sans-fallback;
+  size-adjust: 100%;
+  src: local('Arial');
+}

@@ -9,6 +9,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+import { SERVERS } from './constants.js';
 
 /* eslint-env browser */
 function sampleRUM(checkpoint, data) {
@@ -16,24 +17,15 @@ function sampleRUM(checkpoint, data) {
   const timeShift = () => (window.performance ? window.performance.now() : Date.now() - window.hlx.rum.firstReadTime);
   try {
     window.hlx = window.hlx || {};
-    if (!window.hlx.rum || !window.hlx.rum.collector) {
+    if (!window.hlx.rum) {
       sampleRUM.enhance = () => {};
-      const params = new URLSearchParams(window.location.search);
-      const { currentScript } = document;
-      const rate = params.get('rum')
-        || window.SAMPLE_PAGEVIEWS_AT_RATE
-        || params.get('optel')
-        || (currentScript && currentScript.dataset.rate);
-      const rateValue = {
-        on: 1,
-        off: 0,
-        high: 10,
-        low: 1000,
-      }[rate];
-      const weight = rateValue !== undefined ? rateValue : 100;
-      const id = (window.hlx.rum && window.hlx.rum.id) || crypto.randomUUID().slice(-9);
-      const isSelected = (window.hlx.rum && window.hlx.rum.isSelected)
-        || (weight > 0 && Math.random() * weight < 1);
+      const param = new URLSearchParams(window.location.search).get('rum');
+      const weight = (param === 'on' && 1)
+        || (window.SAMPLE_PAGEVIEWS_AT_RATE === 'high' && 10)
+        || (window.SAMPLE_PAGEVIEWS_AT_RATE === 'low' && 1000)
+        || 100;
+      const id = Math.random().toString(36).slice(-4);
+      const isSelected = param !== 'off' && Math.random() * weight < 1;
       // eslint-disable-next-line object-curly-newline, max-len
       window.hlx.rum = {
         weight,
@@ -49,15 +41,13 @@ function sampleRUM(checkpoint, data) {
           const errData = { source: 'undefined error' };
           try {
             errData.target = error.toString();
-            if (error.stack) {
-              errData.source = error.stack
-                .split('\n')
-                .filter((line) => line.match(/https?:\/\//))
-                .shift()
-                .replace(/at ([^ ]+) \((.+)\)/, '$1@$2')
-                .replace(/ at /, '@')
-                .trim();
-            }
+            errData.source = error.stack
+              .split('\n')
+              .filter((line) => line.match(/https?:\/\//))
+              .shift()
+              .replace(/at ([^ ]+) \((.+)\)/, '$1@$2')
+              .replace(/ at /, '@')
+              .trim();
           } catch (err) {
             /* error structure was not as expected */
           }
@@ -80,17 +70,7 @@ function sampleRUM(checkpoint, data) {
           sampleRUM('error', errData);
         });
 
-        window.addEventListener('securitypolicyviolation', (e) => {
-          if (e.blockedURI.includes('helix-rum-enhancer') && e.disposition === 'enforce') {
-            const errData = {
-              source: 'csp',
-              target: e.blockedURI,
-            };
-            sampleRUM.sendPing('error', timeShift(), errData);
-          }
-        });
-
-        sampleRUM.baseURL = sampleRUM.baseURL || new URL(window.RUM_BASE || '/', new URL('https://ot.aem.live'));
+        sampleRUM.baseURL = sampleRUM.baseURL || new URL(window.RUM_BASE || '/', new URL('https://rum.hlx.page'));
         sampleRUM.collectBaseURL = sampleRUM.collectBaseURL || sampleRUM.baseURL;
         sampleRUM.sendPing = (ck, time, pingData = {}) => {
           // eslint-disable-next-line max-len, object-curly-newline
@@ -103,10 +83,10 @@ function sampleRUM(checkpoint, data) {
             ...pingData,
           });
           const urlParams = window.RUM_PARAMS
-            ? new URLSearchParams(window.RUM_PARAMS).toString() || ''
+            ? `?${new URLSearchParams(window.RUM_PARAMS).toString()}`
             : '';
           const { href: url, origin } = new URL(
-            `.rum/${weight}${urlParams ? `?${urlParams}` : ''}`,
+            `.rum/${weight}${urlParams}`,
             sampleRUM.collectBaseURL,
           );
           const body = origin === window.location.origin
@@ -389,7 +369,6 @@ function wrapTextNodes(block) {
     'H4',
     'H5',
     'H6',
-    'HR',
   ];
 
   const wrap = (el) => {
@@ -537,6 +516,43 @@ function decorateSections(main) {
 }
 
 /**
+ * Gets placeholders object.
+ * @param {string} [prefix] Location of placeholders
+ * @returns {object} Window placeholders object
+ */
+// eslint-disable-next-line import/prefer-default-export
+async function fetchPlaceholders(prefix = 'default') {
+  window.placeholders = window.placeholders || {};
+  if (!window.placeholders[prefix]) {
+    window.placeholders[prefix] = new Promise((resolve) => {
+      fetch(`${prefix === 'default' ? '' : prefix}/placeholders.json`)
+        .then((resp) => {
+          if (resp.ok) {
+            return resp.json();
+          }
+          return {};
+        })
+        .then((json) => {
+          const placeholders = {};
+          json.data
+            .filter((placeholder) => placeholder.Key)
+            .forEach((placeholder) => {
+              placeholders[toCamelCase(placeholder.Key)] = placeholder.Text;
+            });
+          window.placeholders[prefix] = placeholders;
+          resolve(window.placeholders[prefix]);
+        })
+        .catch(() => {
+          // error loading placeholders
+          window.placeholders[prefix] = {};
+          resolve(window.placeholders[prefix]);
+        });
+    });
+  }
+  return window.placeholders[`${prefix}`];
+}
+
+/**
  * Builds a block DOM Element from a two dimensional array, string, or object
  * @param {string} blockName name of the block
  * @param {*} content two dimensional array or string or object of content
@@ -589,7 +605,7 @@ async function loadBlock(block) {
             }
           } catch (error) {
             // eslint-disable-next-line no-console
-            console.error(`failed to load module for ${blockName}`, error);
+            console.log(`failed to load module for ${blockName}`, error);
           }
           resolve();
         })();
@@ -597,7 +613,7 @@ async function loadBlock(block) {
       await Promise.all([cssLoaded, decorationComplete]);
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error(`failed to load block ${blockName}`, error);
+      console.log(`failed to load block ${blockName}`, error);
     }
     block.dataset.blockStatus = 'loaded';
   }
@@ -709,6 +725,33 @@ async function loadSections(element) {
   }
 }
 
+async function isAuthor() {
+  return window?.location?.origin?.includes('author');
+}
+
+async function getCFData(persistedQuery, contentPath, variationName) {
+  const url = isAuthor()
+    ? `${SERVERS.author}${persistedQuery};path=${contentPath};variation=${variationName};ts=${
+      Math.random() * 1000
+    }`
+    : `${SERVERS.publisher}${persistedQuery};path=${contentPath};variation=${variationName};ts=${
+      Math.random() * 1000
+    }`;
+
+  const options = { credentials: 'include' };
+  const cfReq = await fetch(url, options)
+    .then((response) => response.json())
+    .then((contentfragment) => {
+      let data = '';
+      if (contentfragment.data) {
+        data = contentfragment.data[Object.keys(contentfragment.data)[0]].item;
+      }
+      return data;
+    });
+
+  return cfReq;
+}
+
 init();
 
 export {
@@ -735,4 +778,7 @@ export {
   toClassName,
   waitForFirstImage,
   wrapTextNodes,
+  isAuthor,
+  getCFData,
+  fetchPlaceholders,
 };

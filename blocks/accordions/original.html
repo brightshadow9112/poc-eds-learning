@@ -1,0 +1,102 @@
+<!-- Section container for the accordions block -->
+<div class="section accordions-container" data-section-status="loaded">
+  <!-- Block wrapper -->
+  <div class="accordions-wrapper">
+    <!-- Block element with appropriate attributes -->
+    <div class="accordions block" data-block-name="accordions" data-block-status="loaded">
+      
+      <!-- Heading field (Field 1) -->
+      <div>
+        <div>
+          <h2>Frequently Asked Questions</h2>
+        </div>
+      </div>
+      
+      <!-- HeadingType field (Field 2) - not visible in HTML but influences the heading element used -->
+      <!-- This is an example where the headingType affects the heading tag but doesn't create its own DOM element -->
+      
+      <!-- Intro field (Field 3) -->
+      <div>
+        <div>
+          <p>Below you'll find answers to the most common questions about our products and services. Click on any question to see the answer.</p>
+        </div>
+      </div>
+      
+      <!-- settings_allowMultipleOpen field (Field 4) - influences behavior but not visible in DOM -->
+      <!-- settings_openFirstByDefault field (Field 5) - influences behavior but not visible in DOM -->
+      <!-- style_layout field (Field 6) - influences styling but not visible in DOM -->
+      
+      <!-- Child items container -->
+      <div class="accordion-items">
+        <!-- First accordion child item -->
+        <div class="accordion item" data-block-name="accordion" data-block-status="loaded">
+          <!-- Title field (Child Field 1) -->
+          <div>
+            <div>
+              <button class="accordion-trigger" aria-expanded="true">
+                <span>How do I get started?</span>
+                <span class="accordion-icon"></span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Content field (Child Field 2) -->
+          <div>
+            <div class="accordion-content" aria-hidden="false">
+              <p>Getting started is easy! Simply create an account on our website, choose your subscription plan, and you'll have immediate access to all our features. Our onboarding process will guide you through setting up your profile and preferences.</p>
+              <ul>
+                <li>Create an account</li>
+                <li>Choose a subscription plan</li>
+                <li>Complete your profile</li>
+                <li>Start using the platform</li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- iconPosition field (Child Field 3) - influences icon placement but not directly visible -->
+          <!-- isDisabled field (Child Field 4) - influences behavior but not directly visible -->
+        </div>
+        
+        <!-- Second accordion child item -->
+        <div class="accordion item" data-block-name="accordion" data-block-status="loaded">
+          <!-- Title field -->
+          <div>
+            <div>
+              <button class="accordion-trigger" aria-expanded="false">
+                <span>What payment methods do you accept?</span>
+                <span class="accordion-icon"></span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Content field -->
+          <div>
+            <div class="accordion-content" aria-hidden="true">
+              <p>We accept all major credit cards including Visa, Mastercard, American Express, and Discover. You can also pay using PayPal, Apple Pay, or Google Pay for your convenience. For enterprise customers, we offer invoice payment options with net-30 terms.</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Third accordion child item -->
+        <div class="accordion item" data-block-name="accordion" data-block-status="loaded">
+          <!-- Title field -->
+          <div>
+            <div>
+              <button class="accordion-trigger" aria-expanded="false">
+                <span>Can I cancel my subscription at any time?</span>
+                <span class="accordion-icon"></span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Content field -->
+          <div>
+            <div class="accordion-content" aria-hidden="true">
+              <p>Yes, you can cancel your subscription at any time. There are no long-term contracts or cancellation fees. When you cancel, you'll continue to have access to your subscription until the end of your current billing period.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

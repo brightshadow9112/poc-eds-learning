@@ -35,3 +35,37 @@
     padding: 40px 32px;
   }
 }
+
+.bold-section p {
+  font-size: 32px;
+  line-height: 50px;
+  margin: 0 0 60px;
+  font-family: "Vulf Sans", sans-serif;
+}
+
+.bold-section p a:after {
+  content: " ";
+}
+
+.bold-section p a:hover {
+  text-decoration: none;
+}
+
+.bold-section p .icon {
+  display: inline-block;
+  width: 37px;
+  height: 37px;
+  position: relative;
+  top: 7px;
+}
+
+.bold-section p u {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 7px;
+}
+
+@media (width <= 767px) {
+  .bold-section p {
+    margin: 0 0 36px;
+  }
+}

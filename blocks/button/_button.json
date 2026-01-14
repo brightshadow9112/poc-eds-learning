@@ -1,0 +1,52 @@
+
+{
+  "definitions": [
+    {
+      "title": "Button",
+      "id": "button",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/button/v1/button",
+            "template": { "model": "button" }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "button",
+      "fields": [
+        { "component": "aem-content", "name": "link", "label": "Link" },
+        { "component": "text", "name": "linkText", "label": "Text" },
+        { "component": "text", "name": "linkTitle", "label": "Title" },
+        {
+          "component": "select",
+          "name": "linkType",
+          "label": "Type",
+          "options": [
+            { "name": "default", "value": "" },
+            { "name": "primary", "value": "primary" },
+            { "name": "secondary", "value": "secondary" }
+          ]
+        },
+        {
+          "component": "select",
+          "name": "size",
+          "label": "Size",
+          "options": [
+            { "name": "Fit content", "value": "" },
+            { "name": "Full width", "value": "full" }
+          ]
+        },
+        {
+          "component": "aem-content",
+          "name": "icon",
+          "label": "Icon (SVG or image)"
+        }
+      ]
+    }
+  ],
+   "filters": []
+}

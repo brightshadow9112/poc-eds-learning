@@ -1,0 +1,168 @@
+:root {
+    --bg-primary: #282b3a;
+    --bg-primary-rgb: 40, 43, 58;
+    --bg-secondary: #50ffc5;
+    --bg-secondary-rgb: 80, 255, 197;
+    --bg-opacity-primary: 1;
+    --bg-opacity-secondary: 0.5;
+    --link-hover-color: #1d3ecf;
+    --bs-gutter-x: 56px;
+}
+
+main {
+    padding-top: 6.2rem;
+}
+
+/* START: Link Styles */
+a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+a:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+a:focus-visible {
+    outline-offset: 1px;
+}
+
+a:not([href], [class]),
+a:not([href], [class]):hover {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* END: Link Styles */
+
+/* START: Section Styles */
+main > .section {
+    margin: 0;
+}
+
+.section.bg-primary {
+    /* stylelint-disable-next-line color-function-alias-notation */
+    background: rgba(var(--bg-primary-rgb), var(--bg-opacity-primary));
+}
+
+.section.bg-secondary {
+    /* stylelint-disable-next-line color-function-alias-notation */
+    background: rgba(var(--bg-secondary-rgb), var(--bg-opacity-secondary));
+}
+
+.section > div:first-of-type {
+    padding-right: calc(var(--bs-gutter-x) * 0.5);
+    padding-left: calc(var(--bs-gutter-x) * 0.5);
+    margin-right: auto;
+    margin-left: auto;
+}
+
+@media (width >= 36em) {
+    .section > div:first-of-type {
+        max-width: 30.25rem;
+    }
+}
+
+@media (width >= 48em) {
+    .section > div:first-of-type {
+        --bs-gutter-x: 32px;
+
+        max-width: 43rem;
+    }
+}
+
+@media (width >= 62em) {
+    .section > div:first-of-type {
+        max-width: 58rem;
+    }
+}
+
+@media (width >= 75em) {
+    .section > div:first-of-type {
+        max-width: 69.25rem;
+    }
+}
+
+@media (width >= 87.5em) {
+    .section > div:first-of-type {
+        max-width: 74rem;
+    }
+}
+
+/* END: Section Styles */
+
+/* START: two-col-title-text Styles */
+
+.section.two-col-title-text {
+    background-color: var(--bg-primary);
+}
+
+.section.two-col-title-text h2 {
+    font-family: "Vulf Sans", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 32px;
+    line-height: 40px;
+    color: var(--light-color);
+    margin: 0;
+    max-width: 520px;
+    box-sizing: border-box;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.section.two-col-title-text p {
+    font-family: "Vulf Sans", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 18px;
+    line-height: 25.2px;
+    color: var(--light-color);
+    margin: 0;
+    max-width: 600px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.section.two-col-title-text .columns-wrapper {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.section.two-col-title-text .columns > div {
+    display: grid;
+    grid-template-columns: 0.5fr 0.5fr;
+    gap: 0;
+    align-items: center;
+}
+
+@media (width <= 767px) {
+    .section.two-col-title-text {
+        padding: 56px 0;
+    }
+
+    .section.two-col-title-text .columns.block > div {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    /* ✅ MOBILE FONT SIZES */
+    .section.two-col-title-text h2 {
+        font-size: 20px;
+        line-height: 26px;
+    }
+
+    .section.two-col-title-text p {
+        font-size: 16px;
+        line-height: 24px;
+    }
+}
+
+/* END: two-col-title-text Styles */

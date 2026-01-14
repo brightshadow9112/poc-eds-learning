@@ -1,0 +1,37 @@
+{
+  "definitions": [
+    {
+      "title": "reCaptcha Form v2",
+      "id": "recaptcha-form-v2",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "reCaptcha Form v2",
+              "model": "recaptcha-form-v2"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "recaptcha-form-v2",
+      "fields": [
+        {
+          "component": "text",
+          "name": "heading",
+          "label": "Form Heading"
+        },
+        {
+          "component": "text",
+          "name": "siteKey",
+          "label": "reCaptcha v2 Site Key (optional)"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

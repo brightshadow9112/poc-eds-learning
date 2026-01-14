@@ -1,0 +1,99 @@
+.recaptcha-form-v2 {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-l);
+}
+
+.recaptcha-form-v2 h2 {
+  color: var(--text-primary);
+  font-family: var(--heading-font-family);
+  font-size: var(--font-size-heading-l);
+  margin-bottom: var(--spacing-m);
+}
+
+.recaptcha-form-v2 form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-m);
+}
+
+.recaptcha-form-v2 .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.recaptcha-form-v2 label {
+  color: var(--text-primary);
+  font-family: var(--body-font-family);
+  font-size: var(--font-size-body-m);
+  font-weight: 600;
+}
+
+.recaptcha-form-v2 input,
+.recaptcha-form-v2 textarea {
+  padding: var(--spacing-s);
+  border: 1px solid var(--border-primary);
+  background: var(--surface-white);
+  color: var(--text-primary);
+  font-family: var(--body-font-family);
+  font-size: var(--font-size-body-m);
+  border-radius: 4px;
+}
+
+.recaptcha-form-v2 textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.recaptcha-form-v2 input:focus,
+.recaptcha-form-v2 textarea:focus {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.recaptcha-form-v2 .recaptcha-container {
+  margin: var(--spacing-s) 0;
+  min-height: 78px;
+}
+
+.recaptcha-form-v2 button[type="submit"] {
+  padding: var(--spacing-s) var(--spacing-l);
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  border: none;
+  font-family: var(--body-font-family);
+  font-size: var(--font-size-body-m);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.recaptcha-form-v2 button[type="submit"]:hover {
+  background: var(--button-primary-hover-bg);
+}
+
+.recaptcha-form-v2 button[type="submit"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.recaptcha-form-v2 .form-message {
+  padding: var(--spacing-s);
+  border-radius: 4px;
+  font-family: var(--body-font-family);
+  font-size: var(--font-size-body-s);
+}
+
+.recaptcha-form-v2 .form-message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.recaptcha-form-v2 .form-message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}

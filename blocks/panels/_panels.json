@@ -1,0 +1,159 @@
+{
+  "definitions": [
+    {
+      "title": "Panels",
+      "id": "panels",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Panels",
+              "filter": "panels",
+              "model": "panels"
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "Panel",
+      "id": "panel",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block/item",
+            "template": {
+              "name": "Panel",
+              "model": "panel"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "panels",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "mainHeading",
+          "label": "Main Heading",
+          "description": "Main heading text displayed above the accordion sections",
+          "required": false,
+          "maxLength": 100
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "mainHeadingType",
+          "label": "Heading Type",
+          "description": "HTML heading level for the section heading",
+          "required": false,
+          "value": "h2",
+          "options": [
+            {"value": "h1", "name": "H1"},
+            {"value": "h2", "name": "H2"},
+            {"value": "h3", "name": "H3"},
+            {"value": "h4", "name": "H4"}
+          ]
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "mainDescription",
+          "label": "Main Description",
+          "description": "Optional introduction text displayed above the accordion sections",
+          "required": false
+        },
+        {
+          "component": "boolean",
+          "valueType": "boolean",
+          "name": "settings_allowMultipleOpen",
+          "label": "Allow Multiple Open",
+          "description": "Allow multiple accordion sections to be open simultaneously",
+          "required": false,
+          "value": false
+        },
+        {
+          "component": "boolean",
+          "valueType": "boolean",
+          "name": "settings_openFirstByDefault",
+          "label": "Open First Section By Default",
+          "description": "Automatically open the first accordion section when the page loads",
+          "required": false,
+          "value": true
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "style_layout",
+          "label": "Layout Style",
+          "description": "Visual style for the accordion container",
+          "required": false,
+          "value": "default",
+          "options": [
+            {"value": "default", "name": "Default"},
+            {"value": "boxed", "name": "Boxed"},
+            {"value": "minimal", "name": "Minimal"},
+            {"value": "bordered", "name": "Bordered"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "panelName",
+          "label": "Panel Name",
+          "description": "Title displayed in the panel header",
+          "required": true,
+          "maxLength": 100
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "panelContent",
+          "label": "Panel Content",
+          "description": "Content displayed when the accordion section is expanded",
+          "required": true
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "iconPosition",
+          "label": "Icon Position",
+          "description": "Position of the expand/collapse icon",
+          "required": false,
+          "value": "right",
+          "options": [
+            {"value": "left", "name": "Left"},
+            {"value": "right", "name": "Right"}
+          ]
+        },
+        {
+          "component": "boolean",
+          "valueType": "boolean",
+          "name": "isDisabled",
+          "label": "Disable Section",
+          "description": "Make this section non-expandable (always closed)",
+          "required": false,
+          "value": false
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "panels",
+      "components": [
+        "panel"
+      ]
+    }
+  ]
+}

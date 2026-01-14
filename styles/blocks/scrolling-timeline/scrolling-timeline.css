@@ -1,0 +1,174 @@
+.scrolling-timeline-container {
+  margin: 3rem 0;
+  padding: 3rem 2rem;
+  background-color: #000;
+  color: #AAA;
+
+  /* Added position relative to create a positioning context for the full-height line */
+  position: relative;
+}
+
+.scrolling-timeline-container .timeline-entries {
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.scrolling-timeline-container .timeline-entry {
+  padding: 2rem 0;
+  opacity: 0.4;
+  transition: opacity 0.5s ease, transform 0.5s ease, color 0.5s ease;
+  position: relative;
+  min-height: 80px; /* Ensure enough height for the separator line */
+}
+
+.scrolling-timeline-container .timeline-entry.active {
+  opacity: 1;
+  transform: scale(1.03);
+  color: #FFF;
+}
+
+.scrolling-timeline-container .timeline-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0; /* Removed gap since we're controlling spacing with padding */
+  position: relative;
+}
+
+/* Vertical separator line - pure CSS positioning */
+.scrolling-timeline-container .timeline-separator {
+  position: absolute;
+  background-color: #555; /* Light grey line */
+  transition: background-color 0.5s ease;
+  z-index: 1; /* Ensure it appears above content */
+}
+
+/* Desktop separator (vertical line) */
+@media (width >= 992px) {
+  .scrolling-timeline-container .timeline-separator {
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    left: 330px; /* Position to the right of the year column */
+    height: 100%;
+  }
+}
+
+/* Mobile separator (horizontal line) */
+@media (width <= 991px) {
+  /* Adjust the flex container to use column layout and respect the order property */
+  .scrolling-timeline-container .timeline-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  /* Set the order of elements in the flex container */
+  .scrolling-timeline-container .timeline-year {
+    order: 1; /* Year first */
+  }
+  
+  .scrolling-timeline-container .timeline-separator {
+    /* Position the separator after the year element */
+    order: 2; /* Place it after the year element in the flex container */
+    position: relative; /* Change to relative positioning to place it in the flow */
+    inset: auto auto auto 0;
+    width: 100%; /* Full width on mobile */
+    height: 1px;
+    margin-top: 12px; /* Space after the year */
+    margin-bottom: 12px; /* Space before the description */
+  }
+  
+  .scrolling-timeline-container .timeline-description {
+    order: 3; /* Description last */
+    width: 100%; /* Make description take full width */
+  }
+}
+
+/* Active state for the separator line */
+.scrolling-timeline-container .timeline-entry.active .timeline-separator {
+  background-color: #FFF; /* White line when active */
+}
+
+.scrolling-timeline-container .timeline-year {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0;
+  color: inherit;
+  transition: color 0.5s ease, font-size 0.3s ease;
+  font-family: Roboto, sans-serif;
+  min-width: 100px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 40px; /* Increased space for the separator */
+  position: relative; /* For proper positioning context */
+}
+
+.scrolling-timeline-container .timeline-description {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  font-family: Roboto, sans-serif;
+  color: inherit;
+  transition: color 0.5s ease;
+  flex-grow: 1;
+  padding-top: 0.7rem;
+  padding-left: 20px; /* Space for the separator */
+}
+
+/* Line indicator for timeline */
+.scrolling-timeline-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 24px;
+  width: 2px;
+  background-color: rgb(255 255 255 / 20%);
+  display: none; /* Optional: Enable if you want a vertical line */
+}
+
+/* We don't need separate dark theme support since our container is already dark */
+
+/* Larger screens - increase year font size */
+@media (width >= 992px) {
+  .scrolling-timeline-container .timeline-year {
+    font-size: 7.5em;
+    min-width: 300px; /* Wider to accommodate larger text */
+    line-height: 1;
+    padding-right: 60px; /* More space for separator */
+  }
+  
+  .scrolling-timeline-container .timeline-description {
+    padding-top: 2rem; /* Better alignment with larger year */
+    padding-left: 40px; /* More space from separator */
+    font-size: 1.25rem;
+  }
+  
+  .scrolling-timeline-container .timeline-entry {
+    padding: 3rem 0; /* More space between entries */
+    min-height: 120px;
+  }
+  
+  /* Ensure the timeline row has proper positioning context */
+  .scrolling-timeline-container .timeline-row {
+    position: relative;
+  }
+}
+
+@media (width <= 768px) {
+  .scrolling-timeline-container .timeline-year {
+    font-size: 2rem;
+    min-width: auto;
+    margin-bottom: 0; /* Remove bottom margin as the separator will provide spacing */
+    padding-right: 0;
+    text-align: left;
+  }
+  
+  /* Description styles for mobile */
+  .scrolling-timeline-container .timeline-description {
+    font-size: 1rem;
+    padding-top: 0;
+    padding-left: 0;
+    position: relative;
+  }
+}
