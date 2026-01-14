@@ -8,20 +8,52 @@
   {
     "id": "section",
     "components": [
-      "text",
-      "image",
+      "accordions",
+      "audio",
       "button",
-      "title",
-      "hero",
       "cards",
+      "carousel",
       "columns",
-      "fragment"
+      "embed",
+      "flip-cards",
+      "fragment",
+      "hero",
+      "image",
+      "scrolling-timeline",
+      "tabs",
+      "text",
+      "title",
+      "panels",
+      "slides",
+      "lottie-player",
+      "video",
+      "recaptcha-form-v2",
+      "icon-button",
+      "sovm-carousel"
+    ]
+  },
+  {
+    "id": "accordions",
+    "components": [
+      "accordion"
+    ]
+  },
+  {
+    "id": "audio",
+    "components": [
+      "source"
     ]
   },
   {
     "id": "cards",
     "components": [
       "card"
+    ]
+  },
+  {
+    "id": "carousel",
+    "components": [
+      "carousel-item"
     ]
   },
   {
@@ -37,6 +69,42 @@
       "image",
       "button",
       "title"
+    ]
+  },
+  {
+    "id": "flip-cards",
+    "components": [
+      "flip-card"
+    ]
+  },
+  {
+    "id": "panels",
+    "components": [
+      "panel"
+    ]
+  },
+  {
+    "id": "scrolling-timeline",
+    "components": [
+      "timeline-entry"
+    ]
+  },
+  {
+    "id": "slides",
+    "components": [
+      "slide"
+    ]
+  },
+  {
+    "id": "sovm-carousel",
+    "components": [
+      "slide"
+    ]
+  },
+  {
+    "id": "tabs",
+    "components": [
+      "tabs-item"
     ]
   }
 ]
