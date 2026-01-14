@@ -43,6 +43,11 @@
   font-family: "Vulf Sans", sans-serif;
 }
 
+.bold-section p a {
+    text-decoration: none;
+    color: inherit;
+}
+
 .bold-section p a:after {
   content: " ";
 }
