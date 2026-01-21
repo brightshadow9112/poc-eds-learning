@@ -29,7 +29,8 @@
       "video",
       "recaptcha-form-v2",
       "icon-button",
-      "sovm-carousel"
+      "sovm-carousel",
+      "videoplaylist"
     ]
   },
   {
@@ -105,6 +106,12 @@
     "id": "tabs",
     "components": [
       "tabs-item"
+    ]
+  },
+  {
+    "id": "videoplaylist",
+    "components": [
+      "videoslide"
     ]
   }
 ]
