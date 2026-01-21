@@ -1015,5 +1015,22 @@
         "valueType": "string"
       }
     ]
+  },
+  {
+    "id": "videoslide",
+    "fields": [
+      {
+        "component": "text",
+        "name": "videoUrl",
+        "label": "Video URL",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "title",
+        "label": "Title",
+        "valueType": "string"
+      }
+    ]
   }
 ]
