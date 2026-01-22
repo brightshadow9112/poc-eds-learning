@@ -1030,6 +1030,12 @@
         "name": "title",
         "label": "Title",
         "valueType": "string"
+      },
+      {
+        "component": "reference",
+        "name": "image",
+        "label": "Image",
+        "multi": false
       }
     ]
   }
