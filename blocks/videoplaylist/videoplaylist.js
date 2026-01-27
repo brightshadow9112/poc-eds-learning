@@ -1,4 +1,3 @@
-
 import { loadScript } from '../../scripts/aem.js';
 
 function el(tag, attrs = {}, kids) {
@@ -155,23 +154,89 @@ function observeVisibilityRefresh(nodes) {
   window.addEventListener('load', refresh, { passive: true });
 }
 
+async function fetchYouTubeDuration(videoId) {
+  try {
+    const response = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+    if (!response.ok) return null;
+    const data = await response.json();
+    return null; // YouTube oEmbed doesn't provide duration, we'll need to use API or iframe
+  } catch (err) {
+    return null;
+  }
+}
+
+async function fetchVimeoDuration(videoId) {
+  try {
+    // Try using oEmbed endpoint first (more reliable and doesn't have CORS issues)
+    const response = await fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${videoId}`);
+    if (!response.ok) {
+      console.warn(`Failed to fetch Vimeo duration for video ${videoId}`);
+      return null;
+    }
+    const data = await response.json();
+    return data?.duration || null;
+  } catch (err) {
+    console.error(`Error fetching Vimeo duration for ${videoId}:`, err);
+    return null;
+  }
+}
+
+async function getVideoDuration(src, provider) {
+  if (provider === 'youtube') {
+    const id = src.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/)?.[1];
+    if (!id) return null;
+    // YouTube doesn't provide duration without API key, will fetch on player load
+    return null;
+  }
+
+  if (provider === 'vimeo') {
+    const id = src.match(/player\.vimeo\.com\/video\/(\d+)/)?.[1];
+    if (!id) {
+      console.warn('Could not extract Vimeo video ID from:', src);
+      return null;
+    }
+    console.log(`Fetching duration for Vimeo video ${id}...`);
+    const duration = await fetchVimeoDuration(id);
+    console.log(`Duration for ${id}:`, duration);
+    return duration;
+  }
+
+  return null;
+}
+
+function formatDuration(seconds) {
+  if (!seconds) return '';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
 export default async function decorate(block) {
   await ensureSlickAndJquery();
   const $ = window.jQuery;
 
-  const items = [...block.querySelectorAll(':scope > div')]
-    .map((row) => {
-      const [c0, c1] = row.children;
+  const items = await Promise.all(
+    [...block.querySelectorAll(':scope > div')].map(async (row) => {
+      const [c0, c1, c2] = row.children;
       const src = normalizeVideoUrl(pickUrl(c0));
       if (!src) return null;
       const title = txt(c1) || 'title';
-      return { src, title, provider: providerFromSrc(src) };
+      const image = c2?.querySelector('img')?.src || c2?.querySelector('picture img')?.src || '';
+      const provider = providerFromSrc(src);
+      const duration = await getVideoDuration(src, provider);
+      return { src, title, image, provider, duration };
     })
-    .filter(Boolean);
+  );
 
-  if (!items.length) return;
+  const filteredItems = items.filter(Boolean);
+  if (!filteredItems.length) return;
 
-  block.textContent = '';
+  // Check if in authoring mode to preserve DOM structure for Universal Editor
+  const isAuthoring = document.documentElement.classList.contains('editor') || window.location.search.includes('editor');
+
+  if (!isAuthoring) {
+    block.textContent = '';
+  }
   block.classList.add('vp');
 
   const shell = el('div', { class: 'vp-shell' });
@@ -190,6 +255,7 @@ export default async function decorate(block) {
   let active = 0;
   let autoplayOnChange = false;
   let stopPromise = Promise.resolve();
+  let slides = [];
 
   const isReady = (n) => !!(n?.slick?.setPosition && !n.slick.unslicked);
   const setPos = () => {
@@ -197,6 +263,29 @@ export default async function decorate(block) {
     if (isReady(sliderNav)) sliderNav.slick.setPosition();
   };
   const setPosSoon = () => [50, 200].forEach((ms) => setTimeout(setPos, ms));
+
+  function updateDurationDisplay(index, duration) {
+    const slide = slides[index];
+    const caption = slide?.querySelector('.vp-caption');
+    if (!caption) return;
+
+    let durationSpan = caption.querySelector('.vp-duration');
+    if (!durationSpan) {
+      durationSpan = el('span', { class: 'vp-duration' });
+      caption.append(' ', durationSpan);
+    }
+    durationSpan.textContent = `(${formatDuration(duration)})`;
+
+    const navItem = sliderNav.querySelector(`.vp-navitem[data-index="${index}"]`);
+    if (navItem) {
+      let navDuration = navItem.querySelector('.vp-duration');
+      if (!navDuration) {
+        navDuration = el('span', { class: 'vp-duration' });
+        navItem.append(' ', navDuration);
+      }
+      navDuration.textContent = `(${formatDuration(duration)})`;
+    }
+  }
 
   function addPreconnect(href) {
     if (!href) return;
@@ -219,7 +308,7 @@ export default async function decorate(block) {
   function advanceIfPossible(fromIndex) {
     if (fromIndex !== active) return;
     autoplayOnChange = true;
-    if (active < items.length - 1) $(sliderFor).slick('slickGoTo', active + 1);
+    if (active < filteredItems.length - 1) $(sliderFor).slick('slickGoTo', active + 1);
     else {
       resumeTime.set(0, 0);
       $(sliderFor).slick('slickGoTo', 0);
@@ -232,6 +321,15 @@ export default async function decorate(block) {
 
     const player = new window.YT.Player(iframe, {
       events: {
+        onReady: (e) => {
+          try {
+            const duration = player.getDuration();
+            if (typeof duration === 'number' && duration > 0 && !filteredItems[index].duration) {
+              filteredItems[index].duration = duration;
+              updateDurationDisplay(index, duration);
+            }
+          } catch (err) {}
+        },
         onStateChange: (e) => {
           if (e.data === window.YT.PlayerState.PAUSED) {
             try {
@@ -256,7 +354,16 @@ export default async function decorate(block) {
     if (vimeoPlayers.has(index)) return vimeoPlayers.get(index);
 
     const player = new window.Vimeo.Player(iframe);
-    try { await player.ready(); } catch (err) {}
+    try { 
+      await player.ready();
+      if (!filteredItems[index].duration) {
+        const duration = await player.getDuration();
+        if (typeof duration === 'number' && duration > 0) {
+          filteredItems[index].duration = duration;
+          updateDurationDisplay(index, duration);
+        }
+      }
+    } catch (err) {}
 
     player.on('pause', async () => {
       try {
@@ -339,7 +446,7 @@ export default async function decorate(block) {
     preconnectForProvider(provider);
 
     if (media.getAttribute('data-loaded') !== 'true') {
-      media.append(buildIframe(autoPlay ? withAutoplay(baseSrc) : baseSrc, items[index].title));
+      media.append(buildIframe(autoPlay ? withAutoplay(baseSrc) : baseSrc, filteredItems[index].title));
       media.setAttribute('data-loaded', 'true');
       requestAnimationFrame(setPos);
       setPosSoon();
@@ -372,8 +479,8 @@ export default async function decorate(block) {
     }
   }
 
-  const slides = items.map((item, i) => {
-    const poster = item.src.includes('youtube.com/embed/') ? buildYouTubePoster(item.src) : null;
+  slides = filteredItems.map((item, i) => {
+    const poster = item.image || (item.src.includes('youtube.com/embed/') ? buildYouTubePoster(item.src) : null);
 
     const media = el('div', {
       class: `vp-media${poster ? ' has-poster' : ''}`,
@@ -393,12 +500,35 @@ export default async function decorate(block) {
         'data-index': String(i),
         role: 'group',
         'aria-roledescription': 'slide',
-        'aria-label': `${i + 1} of ${items.length}`,
+        'aria-label': `${i + 1} of ${filteredItems.length}`,
       },
-      el('div', { class: 'vp-card' }, [media, el('div', { class: 'vp-caption' }, item.title)]),
+      el('div', { class: 'vp-card' }, media),
     );
 
-    const navItem = el('div', { class: 'vp-navitem', 'data-index': String(i) }, item.title);
+    const navItemContent = [];
+
+    if (item.image) {
+      const navThumb = el('img', {
+        src: item.image,
+        alt: item.title,
+        class: 'vp-navitem-thumb',
+      });
+      navItemContent.push(navThumb);
+    }
+
+    const navTextWrapper = el('div', { class: 'vp-navitem-text-wrapper' }, [
+      el('span', { class: 'vp-video-number' }, `Video ${i + 1}: `),
+      el('span', { class: 'vp-navitem-title' }, item.title),
+      item.duration ? el('span', { class: 'vp-duration' }, ` (${formatDuration(item.duration)})`) : null
+    ].filter(Boolean));
+
+    navItemContent.push(navTextWrapper);
+
+    const navItem = el('div', {
+      class: 'vp-navitem',
+      'data-index': String(i),
+    }, navItemContent);
+
     sliderNav.append(navItem);
 
     const intent = () => preconnectForProvider(item.provider);
@@ -426,13 +556,14 @@ export default async function decorate(block) {
     return slide;
   });
 
+
   const visibleNow = await waitForNonZeroWidth(sliderFor, 4000);
 
   $(sliderNav).on('mousedown touchstart keydown', '.slick-slide', (e) => {
     if (e.type === 'keydown' && !(e.key === 'Enter' || e.key === ' ')) return;
     const idx = Number($(e.currentTarget).attr('data-slick-index')) || 0;
     autoplayOnChange = true;
-    preconnectForProvider(items[idx]?.provider);
+    preconnectForProvider(filteredItems[idx]?.provider);
   });
 
   $(sliderFor).on('init', () => {
@@ -442,7 +573,7 @@ export default async function decorate(block) {
   });
 
   $(sliderFor).on('beforeChange', (e, slick, cur, next) => {
-    preconnectForProvider(items?.[next]?.provider);
+    preconnectForProvider(filteredItems?.[next]?.provider);
     stopPromise = stop(cur);
   });
 
@@ -461,8 +592,8 @@ export default async function decorate(block) {
     if (!prev && !next) return;
 
     autoplayOnChange = true;
-    const target = prev ? Math.max(0, active - 1) : Math.min(items.length - 1, active + 1);
-    preconnectForProvider(items[target]?.provider);
+    const target = prev ? Math.max(0, active - 1) : Math.min(filteredItems.length - 1, active + 1);
+    preconnectForProvider(filteredItems[target]?.provider);
   });
 
   $(sliderFor).slick({
@@ -484,7 +615,7 @@ export default async function decorate(block) {
   });
 
   $(sliderNav).slick({
-    slidesToShow: Math.min(3, items.length),
+    slidesToShow: Math.min(3, filteredItems.length),
     slidesToScroll: 1,
     asNavFor: sliderFor,
     dots: true,
@@ -499,4 +630,9 @@ export default async function decorate(block) {
   });
 
   if (!visibleNow) [500, 1200].forEach((ms) => setTimeout(setPos, ms));
+
+  // Load first video player on page load in paused state
+  setTimeout(() => {
+    load(0, { autoPlay: false });
+  }, 300);
 }
