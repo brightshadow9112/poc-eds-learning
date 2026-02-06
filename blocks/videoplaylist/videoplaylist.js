@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { loadScript } from '../../scripts/aem.js';
+import { moveInstrumentation } from '../../scripts/scripts.js';
 
 function el(tag, attrs = {}, kids) {
   const n = document.createElement(tag);
@@ -136,10 +137,8 @@ function withAutoplay(src) {
 }
 
 async function ensureSlickAndJquery() {
-  if (!window.jQuery) {
-    await loadScript('https://code.jquery.com/jquery-3.7.1.min.js');
-  }
-  await loadScript('https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js');
+  if (!window.jQuery) await loadScript('/scripts/jquery.min.js');
+  await loadScript('/scripts/slick.min.js');
   if (!window.jQuery?.fn?.slick)
     throw new Error('Slick failed to initialize: jQuery.fn.slick is missing.');
 }
@@ -247,8 +246,11 @@ export default async function decorate(block) {
   await ensureSlickAndJquery();
   const $ = window.jQuery;
 
+  // Keep reference to original rows for moveInstrumentation
+  const rows = [...block.querySelectorAll(':scope > div')];
+
   const items = await Promise.all(
-    [...block.querySelectorAll(':scope > div')].map(async (row) => {
+    rows.map(async (row, idx) => {
       const [c0, c1, c2] = row.children;
       const src = normalizeVideoUrl(pickUrl(c0));
       if (!src) return null;
@@ -259,21 +261,13 @@ export default async function decorate(block) {
         '';
       const provider = providerFromSrc(src);
       const duration = await getVideoDuration(src, provider);
-      return { src, title, image, provider, duration };
+      return { src, title, image, provider, duration, originalRow: row, rowIndex: idx };
     }),
   );
 
   const filteredItems = items.filter(Boolean);
   if (!filteredItems.length) return;
 
-  // Check if in authoring mode to preserve DOM structure for Universal Editor
-  const isAuthoring =
-    document.documentElement.classList.contains('editor') ||
-    window.location.search.includes('editor');
-
-  if (!isAuthoring) {
-    block.textContent = '';
-  }
   block.classList.add('vp');
 
   const shell = el('div', { class: 'vp-shell' });
@@ -591,6 +585,11 @@ export default async function decorate(block) {
       el('div', { class: 'vp-card' }, media),
     );
 
+    // Move Universal Editor instrumentation from original row to slide
+    if (item.originalRow) {
+      moveInstrumentation(item.originalRow, slide);
+    }
+
     const navItemContent = [];
 
     if (item.image) {
@@ -657,6 +656,12 @@ export default async function decorate(block) {
     });
 
     sliderFor.append(slide);
+    
+    // Remove original row after moving instrumentation
+    if (item.originalRow) {
+      item.originalRow.remove();
+    }
+    
     return slide;
   });
 
