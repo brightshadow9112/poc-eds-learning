@@ -123,9 +123,9 @@ function withAutoplay(src) {
 }
 
 async function ensureSlickAndJquery() {
-  if (!window.jQuery) await loadScript('/scripts/jquery.min.js');
-  await loadScript('/scripts/slick.min.js');
-  if (!window.jQuery?.fn?.slick) throw new Error('Slick failed to initialize: jQuery.fn.slick is missing.');
+  if (!window.jQuery) await loadScript('../scripts/jquery.min.js');
+  await loadScript('../scripts/slick.min.js');
+  if (!window.jQuery?.fn?.slick) throw new Error('Slick failed to initialize anc: jQuery.fn.slick is missing.');
 }
 
 function waitForNonZeroWidth(node, timeoutMs = 4000) {
