@@ -1,0 +1,25 @@
+name: ESLint Auto Fix
+
+on:
+ workflow_dispatch:
+
+jobs:
+ lint-fix:
+   runs-on: ubuntu-latest
+   steps:
+     - uses: actions/checkout@v4
+
+     - uses: actions/setup-node@v4
+       with:
+         node-version: 18
+
+     - run: npm ci
+     - run: npx eslint . --fix
+
+     - name: Commit fixes
+       run: |
+         git config user.name "github-actions"
+         git config user.email "github-actions@github.com"
+         git add .
+         git commit -m "Auto-fix eslint issues" || echo "No changes"
+         git push
