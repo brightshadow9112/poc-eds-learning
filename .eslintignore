@@ -11,3 +11,7 @@ plugins/*
 svgxuse.min.js
 jquery.min.js
 slick.min.js
+
+# Temporarily ignore during dev (remove before production)
+# blocks/videoplaylist/*.js
+# blocks/**/specific-file.js

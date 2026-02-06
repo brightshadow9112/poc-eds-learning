@@ -273,24 +273,15 @@ main > .section > div {
 
 /* Start: text-with-link Styles */
 
-.text-with-link .columns > div {
-    align-items: baseline;
-}
-
 .text-with-link p {
     font-size: 32px;
     line-height: 50px;
     margin: 0 0 60px;
     font-family: "Vulf Sans", sans-serif;
-    max-width: 450px;
 }
 
-.text-with-link p a {
-    color : inherit;
-    text-underline-offset: 7px;
-    text-decoration-thickness: 1px;
-    margin-right: 11px;
-    white-space: nowrap;
+.text-with-link p a:after {
+    content: " ";
 }
 
 .text-with-link  p a:hover {
@@ -313,7 +304,6 @@ main > .section > div {
 @media (width <= 767px) {
     .text-with-link p {
         margin: 0 0 36px;
-        max-width: 484px;
     }
 }
 
