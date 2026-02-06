@@ -1,15 +1,15 @@
 import { loadScript } from '../../scripts/aem.js';
 
-function el(tag, attrs = {}, kids) {
+function el(tag, kids, attrs = {}) {
   const n = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) {
-    if (v == null) continue;
+  Object.entries(attrs).forEach(([k, v]) => {
+    if (v == null) return;
     if (k === 'class') n.className = v;
     else if (k === 'html') n.innerHTML = v;
     else if (k.startsWith('aria-')) n.setAttribute(k, v);
     else if (k in n) n[k] = v;
     else n.setAttribute(k, v);
-  }
+  });
   (Array.isArray(kids) ? kids : [kids]).filter(Boolean).forEach((c) => {
     n.append(c.nodeType ? c : document.createTextNode(String(c)));
   });
@@ -37,8 +37,11 @@ function normalizeVideoUrl(raw) {
   return s;
 }
 
-const providerFromSrc = (src = '') =>
-  src.includes('youtube.com') ? 'youtube' : src.includes('vimeo.com') ? 'vimeo' : 'other';
+const providerFromSrc = (src = '') => {
+  if (src.includes('youtube.com')) return 'youtube';
+  if (src.includes('vimeo.com')) return 'vimeo';
+  return 'other';
+};
 
 function buildYouTubePoster(embedUrl) {
   const id = embedUrl.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/)?.[1];
@@ -59,7 +62,10 @@ let ytApiPromise;
 function ensureYouTubeApi() {
   if (ytApiPromise) return ytApiPromise;
   ytApiPromise = new Promise((resolve, reject) => {
-    if (window.YT?.Player) return resolve(window.YT);
+    if (window.YT?.Player) {
+      resolve(window.YT);
+      return;
+    }
     const prev = window.onYouTubeIframeAPIReady;
     window.onYouTubeIframeAPIReady = () => {
       if (typeof prev === 'function') prev();
@@ -127,8 +133,14 @@ function waitForNonZeroWidth(node, timeoutMs = 4000) {
   return new Promise((resolve) => {
     const tick = () => {
       const w = node?.getBoundingClientRect?.().width || 0;
-      if (w > 2) return resolve(true);
-      if (performance.now() - start > timeoutMs) return resolve(false);
+      if (w > 2) {
+        resolve(true);
+        return;
+      }
+      if (performance.now() - start > timeoutMs) {
+        resolve(false);
+        return;
+      }
       requestAnimationFrame(tick);
     };
     tick();
@@ -136,17 +148,18 @@ function waitForNonZeroWidth(node, timeoutMs = 4000) {
 }
 
 function observeVisibilityRefresh(nodes) {
-  const refresh = () =>
-    nodes.forEach((n) => n?.slick?.setPosition && !n.slick.unslicked && n.slick.setPosition());
+  const refresh = () => nodes.forEach((n) => {
+    if (n?.slick?.setPosition && !n.slick.unslicked) n.slick.setPosition();
+  });
 
   if (window.ResizeObserver) {
     const ro = new ResizeObserver(refresh);
     nodes.forEach((n) => ro.observe(n));
   }
   if (window.IntersectionObserver) {
-    const io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && refresh(), {
-      threshold: 0.01,
-    });
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) refresh();
+    }, { threshold: 0.01 });
     nodes.forEach((n) => io.observe(n));
   }
 
@@ -154,29 +167,16 @@ function observeVisibilityRefresh(nodes) {
   window.addEventListener('load', refresh, { passive: true });
 }
 
-async function fetchYouTubeDuration(videoId) {
-  try {
-    const response = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
-    if (!response.ok) return null;
-    const data = await response.json();
-    return null; // YouTube oEmbed doesn't provide duration, we'll need to use API or iframe
-  } catch (err) {
-    return null;
-  }
-}
-
 async function fetchVimeoDuration(videoId) {
   try {
     // Try using oEmbed endpoint first (more reliable and doesn't have CORS issues)
     const response = await fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${videoId}`);
     if (!response.ok) {
-      console.warn(`Failed to fetch Vimeo duration for video ${videoId}`);
       return null;
     }
     const data = await response.json();
     return data?.duration || null;
   } catch (err) {
-    console.error(`Error fetching Vimeo duration for ${videoId}:`, err);
     return null;
   }
 }
@@ -192,12 +192,9 @@ async function getVideoDuration(src, provider) {
   if (provider === 'vimeo') {
     const id = src.match(/player\.vimeo\.com\/video\/(\d+)/)?.[1];
     if (!id) {
-      console.warn('Could not extract Vimeo video ID from:', src);
       return null;
     }
-    console.log(`Fetching duration for Vimeo video ${id}...`);
     const duration = await fetchVimeoDuration(id);
-    console.log(`Duration for ${id}:`, duration);
     return duration;
   }
 
@@ -215,27 +212,90 @@ export default async function decorate(block) {
   await ensureSlickAndJquery();
   const $ = window.jQuery;
 
+  // Check if in authoring mode to preserve DOM structure for Universal Editor
+  const isAuthoring = document.documentElement.classList.contains('editor')
+    || window.location.search.includes('editor');
+
+  /* eslint-disable no-console */
+  console.log('[VideoPlaylist] Decorate started', {
+    isAuthoring,
+    blockChildren: block.children.length,
+    editorClass: document.documentElement.classList.contains('editor'),
+    searchParams: window.location.search,
+  });
+  /* eslint-enable no-console */
+
+  const rows = [...block.querySelectorAll(':scope > div')];
+  /* eslint-disable no-console */
+  console.log('[VideoPlaylist] Found rows:', rows.length);
+  /* eslint-enable no-console */
+
   const items = await Promise.all(
-    [...block.querySelectorAll(':scope > div')].map(async (row) => {
+    rows.map(async (row, idx) => {
       const [c0, c1, c2] = row.children;
       const src = normalizeVideoUrl(pickUrl(c0));
       if (!src) return null;
       const title = txt(c1) || 'title';
-      const image = c2?.querySelector('img')?.src || c2?.querySelector('picture img')?.src || '';
+
+      // Extract image with detailed logging
+      const imgElement = c2?.querySelector('img');
+      const pictureImgElement = c2?.querySelector('picture img');
+      const image = imgElement?.src || pictureImgElement?.src || '';
+
+      /* eslint-disable no-console */
+      console.log(`[VideoPlaylist] Row ${idx}:`, {
+        src,
+        title,
+        image,
+        hasC2: !!c2,
+        hasImg: !!imgElement,
+        hasPictureImg: !!pictureImgElement,
+        imgSrc: imgElement?.src,
+        pictureImgSrc: pictureImgElement?.src,
+      });
+      /* eslint-enable no-console */
+
       const provider = providerFromSrc(src);
       const duration = await getVideoDuration(src, provider);
-      return { src, title, image, provider, duration };
-    })
+      // Store reference to original DOM elements for authoring mode
+      return {
+        src,
+        title,
+        image,
+        provider,
+        duration,
+        originalRow: isAuthoring ? row : null,
+        originalImageCell: isAuthoring ? c2 : null,
+      };
+    }),
   );
 
   const filteredItems = items.filter(Boolean);
-  if (!filteredItems.length) return;
+  if (!filteredItems.length) {
+    /* eslint-disable no-console */
+    console.warn('[VideoPlaylist] No valid items found');
+    /* eslint-enable no-console */
+    return;
+  }
 
-  // Check if in authoring mode to preserve DOM structure for Universal Editor
-  const isAuthoring = document.documentElement.classList.contains('editor') || window.location.search.includes('editor');
+  /* eslint-disable no-console */
+  console.log('[VideoPlaylist] Filtered items:', filteredItems.length, filteredItems);
+  /* eslint-enable no-console */
 
   if (!isAuthoring) {
+    /* eslint-disable no-console */
+    console.log('[VideoPlaylist] Clearing block content (publish mode)');
+    /* eslint-enable no-console */
     block.textContent = '';
+  } else {
+    /* eslint-disable no-console */
+    console.log('[VideoPlaylist] Preserving original DOM (authoring mode)');
+    /* eslint-enable no-console */
+    // Hide original rows but keep them in DOM for Universal Editor
+    rows.forEach((row) => {
+      row.style.display = 'none';
+      row.setAttribute('data-vp-original', 'true');
+    });
   }
   block.classList.add('vp');
 
@@ -292,7 +352,9 @@ export default async function decorate(block) {
     const key = `vp-preconnect:${href}`;
     if (document.head.querySelector(`link[data-vp="${key}"]`)) return;
     document.head.appendChild(
-      el('link', { rel: 'preconnect', href, crossOrigin: 'anonymous', 'data-vp': key }),
+      el('link', null, {
+        rel: 'preconnect', href, crossOrigin: 'anonymous', 'data-vp': key,
+      }),
     );
   }
 
@@ -321,21 +383,25 @@ export default async function decorate(block) {
 
     const player = new window.YT.Player(iframe, {
       events: {
-        onReady: (e) => {
+        onReady: () => {
           try {
             const duration = player.getDuration();
             if (typeof duration === 'number' && duration > 0 && !filteredItems[index].duration) {
               filteredItems[index].duration = duration;
               updateDurationDisplay(index, duration);
             }
-          } catch (err) {}
+          } catch (err) {
+            // Ignore error if duration not available
+          }
         },
         onStateChange: (e) => {
           if (e.data === window.YT.PlayerState.PAUSED) {
             try {
               const t = player.getCurrentTime();
               if (typeof t === 'number') resumeTime.set(index, t);
-            } catch (err) {}
+            } catch (err) {
+              // Ignore error getting current time
+            }
           }
           if (e.data === window.YT.PlayerState.ENDED) {
             resumeTime.set(index, 0);
@@ -354,7 +420,7 @@ export default async function decorate(block) {
     if (vimeoPlayers.has(index)) return vimeoPlayers.get(index);
 
     const player = new window.Vimeo.Player(iframe);
-    try { 
+    try {
       await player.ready();
       if (!filteredItems[index].duration) {
         const duration = await player.getDuration();
@@ -363,13 +429,17 @@ export default async function decorate(block) {
           updateDurationDisplay(index, duration);
         }
       }
-    } catch (err) {}
+    } catch (err) {
+      // Ignore error if duration not available
+    }
 
     player.on('pause', async () => {
       try {
         const t = await player.getCurrentTime();
         if (typeof t === 'number') resumeTime.set(index, t);
-      } catch (err) {}
+      } catch (err) {
+        // Ignore error getting current time
+      }
     });
 
     player.on('ended', () => {
@@ -405,10 +475,16 @@ export default async function decorate(block) {
           const t = p.getCurrentTime?.();
           if (typeof t === 'number' && !Number.isNaN(t)) resumeTime.set(index, t);
           p.pauseVideo?.();
-        } catch (err) {}
+        } catch (err) {
+          // Ignore error pausing video
+        }
       }
       if (TEARDOWN_ON_BLUR) {
-        try { p?.destroy?.(); } catch (err) {}
+        try {
+          p?.destroy?.();
+        } catch (err) {
+          // Ignore error destroying player
+        }
         ytPlayers.delete(index);
         await teardownSlide(index);
       }
@@ -422,11 +498,21 @@ export default async function decorate(block) {
           const t = await p.getCurrentTime();
           if (typeof t === 'number' && !Number.isNaN(t)) resumeTime.set(index, t);
           await p.pause();
-        } catch (err) {}
+        } catch (err) {
+          // Ignore error pausing video
+        }
       }
       if (TEARDOWN_ON_BLUR) {
-        try { await p?.unload?.(); } catch (err) {}
-        try { await p?.destroy?.(); } catch (err) {}
+        try {
+          await p?.unload?.();
+        } catch (err) {
+          // Ignore error unloading player
+        }
+        try {
+          await p?.destroy?.();
+        } catch (err) {
+          // Ignore error destroying player
+        }
         vimeoPlayers.delete(index);
         await teardownSlide(index);
       }
@@ -446,7 +532,8 @@ export default async function decorate(block) {
     preconnectForProvider(provider);
 
     if (media.getAttribute('data-loaded') !== 'true') {
-      media.append(buildIframe(autoPlay ? withAutoplay(baseSrc) : baseSrc, filteredItems[index].title));
+      const iframeSrc = autoPlay ? withAutoplay(baseSrc) : baseSrc;
+      media.append(buildIframe(iframeSrc, filteredItems[index].title));
       media.setAttribute('data-loaded', 'true');
       requestAnimationFrame(setPos);
       setPosSoon();
@@ -459,7 +546,13 @@ export default async function decorate(block) {
 
     if (provider === 'youtube') {
       const player = await ensureYouTubePlayer(index, iframe);
-      if (t > 0) { try { player.seekTo(t, true); } catch (err) {} }
+      if (t > 0) {
+        try {
+          player.seekTo(t, true);
+        } catch (err) {
+          // Ignore error seeking
+        }
+      }
       if (autoPlay) {
         try { player.playVideo?.(); slide.classList.add('is-playing'); } catch (err) {
           slide.classList.remove('is-playing');
@@ -470,7 +563,13 @@ export default async function decorate(block) {
 
     if (provider === 'vimeo') {
       const player = await ensureVimeoPlayer(index, iframe);
-      if (t > 0) { try { await player.setCurrentTime(t); } catch (err) {} }
+      if (t > 0) {
+        try {
+          await player.setCurrentTime(t);
+        } catch (err) {
+          // Ignore error setting time
+        }
+      }
       if (autoPlay) {
         try { await player.play(); slide.classList.add('is-playing'); } catch (err) {
           slide.classList.remove('is-playing');
@@ -480,9 +579,20 @@ export default async function decorate(block) {
   }
 
   slides = filteredItems.map((item, i) => {
-    const poster = item.image || (item.src.includes('youtube.com/embed/') ? buildYouTubePoster(item.src) : null);
+    const ytPoster = item.src.includes('youtube.com/embed/') ? buildYouTubePoster(item.src) : null;
+    const poster = item.image || ytPoster;
 
-    const media = el('div', {
+    /* eslint-disable no-console */
+    console.log(`[VideoPlaylist] Creating slide ${i}:`, {
+      title: item.title,
+      image: item.image,
+      ytPoster,
+      finalPoster: poster,
+      hasPoster: !!poster,
+    });
+    /* eslint-enable no-console */
+
+    const media = el('div', null, {
       class: `vp-media${poster ? ' has-poster' : ''}`,
       'data-src': item.src,
       'data-loaded': 'false',
@@ -495,6 +605,7 @@ export default async function decorate(block) {
 
     const slide = el(
       'div',
+      el('div', null, { class: 'vp-card' }, media),
       {
         class: 'vp-slide',
         'data-index': String(i),
@@ -502,29 +613,36 @@ export default async function decorate(block) {
         'aria-roledescription': 'slide',
         'aria-label': `${i + 1} of ${filteredItems.length}`,
       },
-      el('div', { class: 'vp-card' }, media),
     );
 
     const navItemContent = [];
 
     if (item.image) {
-      const navThumb = el('img', {
+      /* eslint-disable no-console */
+      console.log(`[VideoPlaylist] Adding nav thumbnail for slide ${i}:`, item.image);
+      /* eslint-enable no-console */
+
+      const navThumb = el('img', null, {
         src: item.image,
         alt: item.title,
         class: 'vp-navitem-thumb',
       });
       navItemContent.push(navThumb);
+    } else {
+      /* eslint-disable no-console */
+      console.warn(`[VideoPlaylist] No image for slide ${i}, skipping nav thumbnail`);
+      /* eslint-enable no-console */
     }
 
-    const navTextWrapper = el('div', { class: 'vp-navitem-text-wrapper' }, [
-      el('span', { class: 'vp-video-number' }, `Video ${i + 1}: `),
-      el('span', { class: 'vp-navitem-title' }, item.title),
-      item.duration ? el('span', { class: 'vp-duration' }, ` (${formatDuration(item.duration)})`) : null
-    ].filter(Boolean));
+    const navTextWrapper = el('div', [
+      el('span', `Video ${i + 1}: `, { class: 'vp-video-number' }),
+      el('span', item.title, { class: 'vp-navitem-title' }),
+      item.duration ? el('span', ` (${formatDuration(item.duration)})`, { class: 'vp-duration' }) : null,
+    ].filter(Boolean), { class: 'vp-navitem-text-wrapper' });
 
     navItemContent.push(navTextWrapper);
 
-    const navItem = el('div', {
+    const navItem = el('div', navItemContent, {
       class: 'vp-navitem',
       'data-index': String(i),
     }, navItemContent);
@@ -556,7 +674,6 @@ export default async function decorate(block) {
     return slide;
   });
 
-
   const visibleNow = await waitForNonZeroWidth(sliderFor, 4000);
 
   $(sliderNav).on('mousedown touchstart keydown', '.slick-slide', (e) => {
@@ -567,6 +684,9 @@ export default async function decorate(block) {
   });
 
   $(sliderFor).on('init', () => {
+    /* eslint-disable no-console */
+    console.log('[VideoPlaylist] Slick initialized');
+    /* eslint-enable no-console */
     observeVisibilityRefresh([sliderFor, sliderNav]);
     setPos();
     [100, 300].forEach((ms) => setTimeout(setPos, ms));
@@ -635,4 +755,65 @@ export default async function decorate(block) {
   setTimeout(() => {
     load(0, { autoPlay: false });
   }, 300);
+
+  // Set up mutation observer in authoring mode to detect content changes
+  if (isAuthoring && window.MutationObserver) {
+    const observer = new MutationObserver((mutations) => {
+      /* eslint-disable no-console */
+      console.log('[VideoPlaylist] DOM mutation detected in authoring mode:', mutations);
+      /* eslint-enable no-console */
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList' || mutation.type === 'attributes') {
+          /* eslint-disable no-console */
+          console.log('[VideoPlaylist] Content changed:', {
+            type: mutation.type,
+            target: mutation.target,
+            addedNodes: mutation.addedNodes.length,
+            removedNodes: mutation.removedNodes.length,
+          });
+          /* eslint-enable no-console */
+        }
+      });
+    });
+
+    // Observe the original rows for changes
+    const originalRows = block.querySelectorAll('[data-vp-original="true"]');
+    originalRows.forEach((row) => {
+      observer.observe(row, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['src', 'href'],
+      });
+    });
+
+    /* eslint-disable no-console */
+    console.log('[VideoPlaylist] Mutation observer set up for', originalRows.length, 'rows');
+    /* eslint-enable no-console */
+
+    // Expose refresh function for Universal Editor
+    window.videoPlaylistRefresh = () => {
+      /* eslint-disable no-console */
+      console.log('[VideoPlaylist] Manual refresh triggered');
+      /* eslint-enable no-console */
+      // Re-run the decorate function
+      decorate(block).catch((err) => {
+        /* eslint-disable no-console */
+        console.error('[VideoPlaylist] Refresh failed:', err);
+        /* eslint-enable no-console */
+      });
+    };
+
+    /* eslint-disable no-console */
+    console.log('[VideoPlaylist] Global refresh function exposed: window.videoPlaylistRefresh()');
+    /* eslint-enable no-console */
+  }
+
+  /* eslint-disable no-console */
+  console.log('[VideoPlaylist] Decorate completed', {
+    isAuthoring,
+    totalSlides: slides.length,
+    visibleNow,
+  });
+  /* eslint-enable no-console */
 }
