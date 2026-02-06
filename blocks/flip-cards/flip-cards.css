@@ -4,7 +4,7 @@
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(257px, 1fr)); /* Original width */
-  grid-gap: 24px;
+  gap: 24px;
   height: 100%;
   grid-auto-rows: minmax(400px, auto); /* Minimum row height with expansion */
 }
@@ -186,7 +186,6 @@
 /* Additional styling to ensure text stays within card borders */
 .front-text,
 .back-text {
-  word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
 }

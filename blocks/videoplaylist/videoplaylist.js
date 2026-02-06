@@ -246,11 +246,9 @@ export default async function decorate(block) {
   await ensureSlickAndJquery();
   const $ = window.jQuery;
 
-  // Keep reference to original rows for moveInstrumentation
-  const rows = [...block.querySelectorAll(':scope > div')];
-
+  const originalRows = [...block.querySelectorAll(':scope > div')];
   const items = await Promise.all(
-    rows.map(async (row, idx) => {
+    originalRows.map(async (row) => {
       const [c0, c1, c2] = row.children;
       const src = normalizeVideoUrl(pickUrl(c0));
       if (!src) return null;
@@ -261,13 +259,21 @@ export default async function decorate(block) {
         '';
       const provider = providerFromSrc(src);
       const duration = await getVideoDuration(src, provider);
-      return { src, title, image, provider, duration, originalRow: row, rowIndex: idx };
+      return { src, title, image, provider, duration, row };
     }),
   );
 
   const filteredItems = items.filter(Boolean);
   if (!filteredItems.length) return;
 
+  // Check if in authoring mode to preserve DOM structure for Universal Editor
+  const isAuthoring =
+    document.documentElement.classList.contains('editor') ||
+    window.location.search.includes('editor');
+
+  if (!isAuthoring) {
+    block.textContent = '';
+  }
   block.classList.add('vp');
 
   const shell = el('div', { class: 'vp-shell' });
@@ -311,7 +317,7 @@ export default async function decorate(block) {
       durationSpan = el('span', { class: 'vp-duration' });
       caption.append(' ', durationSpan);
     }
-    durationSpan.textContent = `(${formatDuration(duration)})`;
+    durationSpan.textContent = `${formatDuration(duration)}`;
 
     const navItem = sliderNav.querySelector(
       `.vp-navitem[data-index="${index}"]`,
@@ -322,7 +328,7 @@ export default async function decorate(block) {
         navDuration = el('span', { class: 'vp-duration' });
         navItem.append(' ', navDuration);
       }
-      navDuration.textContent = `(${formatDuration(duration)})`;
+      navDuration.textContent = `${formatDuration(duration)}`;
     }
   }
 
@@ -585,11 +591,6 @@ export default async function decorate(block) {
       el('div', { class: 'vp-card' }, media),
     );
 
-    // Move Universal Editor instrumentation from original row to slide
-    if (item.originalRow) {
-      moveInstrumentation(item.originalRow, slide);
-    }
-
     const navItemContent = [];
 
     if (item.image) {
@@ -611,7 +612,7 @@ export default async function decorate(block) {
           ? el(
               'span',
               { class: 'vp-duration' },
-              ` (${formatDuration(item.duration)})`,
+              ` ${formatDuration(item.duration)}`,
             )
           : null,
       ].filter(Boolean),
@@ -657,9 +658,9 @@ export default async function decorate(block) {
 
     sliderFor.append(slide);
     
-    // Remove original row after moving instrumentation
-    if (item.originalRow) {
-      item.originalRow.remove();
+    // Move instrumentation for Universal Editor support
+    if (item.row) {
+      moveInstrumentation(item.row, slide);
     }
     
     return slide;

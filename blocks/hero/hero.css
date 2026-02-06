@@ -48,7 +48,7 @@
     color: inherit;
 }
 
-.bold-section p a:after {
+.bold-section p a::after {
   content: " ";
 }
 
