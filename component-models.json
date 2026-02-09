@@ -68,6 +68,10 @@
           {
             "name": "Bold section",
             "value": "bold-section"
+          },
+          {
+            "name": "Share your story",
+            "value": "share-your-story"
           }
         ]
       }
@@ -260,6 +264,17 @@
         "label": "Source URL",
         "multi": false,
         "rootPath": "/content/dam/otsuka-xwalk-boilerplate"
+      }
+    ]
+  },
+  {
+    "id": "autoslider",
+    "fields": [
+      {
+        "component": "reference",
+        "name": "image",
+        "label": "Image",
+        "multi": false
       }
     ]
   },

@@ -30,7 +30,8 @@
       "recaptcha-form-v2",
       "icon-button",
       "sovm-carousel",
-      "videoplaylist"
+      "videoplaylist",
+      "autoslider"
     ]
   },
   {
@@ -43,6 +44,12 @@
     "id": "audio",
     "components": [
       "source"
+    ]
+  },
+  {
+    "id": "autoslider",
+    "components": [
+      "autoslider"
     ]
   },
   {

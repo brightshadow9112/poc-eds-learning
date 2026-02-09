@@ -45,6 +45,10 @@
             {
               "name": "Bold section",
               "value": "bold-section"
+            },
+            {
+              "name": "Share your story",
+              "value": "share-your-story"
             }
           ]
         }
@@ -77,7 +81,8 @@
         "recaptcha-form-v2",
         "icon-button",
         "sovm-carousel",
-        "videoplaylist"
+        "videoplaylist",
+        "autoslider"
       ]
     }
   ]
