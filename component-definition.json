@@ -121,15 +121,15 @@
           }
         },
         {
-          "title": "Autoslider",
-          "id": "autoslider",
+          "title": "Autoslide",
+          "id": "autoslide",
           "plugins": {
             "xwalk": {
               "page": {
                 "resourceType": "core/franklin/components/block/v1/block/item",
                 "template": {
-                  "name": "Autoslider",
-                  "model": "autoslider"
+                  "name": "Autoslide",
+                  "model": "autoslide"
                 }
               }
             }
