@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { loadScript } from '../../scripts/aem.js';
-import { isUniversalEditorActive, moveInstrumentation } from '../../scripts/scripts.js';
+import { moveInstrumentation } from '../../scripts/scripts.js';
 
 function el(tag, attrs = {}, kids) {
   const n = document.createElement(tag);
@@ -106,12 +106,6 @@ export default async function decorate(block) {
 
   if (!items.length) return;
 
-  // Preserve DOM structure for Universal Editor
-  const isAuthoring = isUniversalEditorActive();
-
-  if (!isAuthoring) {
-    block.textContent = '';
-  }
   block.classList.add('autoslider-container');
 
   const slider = el('div', {
@@ -136,9 +130,10 @@ export default async function decorate(block) {
 
     slider.append(slide);
 
-    // Move instrumentation for Universal Editor support
+    // Move instrumentation for Universal Editor support, then remove original row
     if (item.row) {
       moveInstrumentation(item.row, slide);
+      item.row.remove(); // Always remove after moving instrumentation
     }
 
     return slide;
