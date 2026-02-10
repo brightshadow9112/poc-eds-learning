@@ -106,6 +106,14 @@ export default async function decorate(block) {
 
   if (!items.length) return;
 
+  // Check if in authoring mode to preserve DOM structure for Universal Editor
+  const isAuthoring =
+    document.documentElement.classList.contains('editor') ||
+    window.location.search.includes('editor');
+
+  if (!isAuthoring) {
+    block.textContent = '';
+  }
   block.classList.add('autoslider-container');
 
   const slider = el('div', {
@@ -113,7 +121,7 @@ export default async function decorate(block) {
     'aria-label': 'Auto slider',
   });
 
-  const slides = items.map((item, i) => {
+  items.forEach((item, i) => {
     const slide = el(
       'div',
       {
@@ -128,15 +136,12 @@ export default async function decorate(block) {
       ),
     );
 
-    slider.append(slide);
-
-    // Move instrumentation for Universal Editor support, then remove original row
+    // Move instrumentation for Universal Editor support
     if (item.row) {
       moveInstrumentation(item.row, slide);
-      item.row.remove(); // Always remove after moving instrumentation
     }
 
-    return slide;
+    slider.append(slide);
   });
 
   block.append(slider);
