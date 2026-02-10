@@ -141,7 +141,10 @@ export default async function decorate(block) {
     // Move instrumentation for Universal Editor support
     if (item.row) {
       moveInstrumentation(item.row, slide);
-      item.row.remove(); // Remove original row after moving instrumentation
+      // Only remove original row when NOT in authoring mode
+      if (!isAuthoring) {
+        item.row.remove();
+      }
     }
 
     return slide;
@@ -170,7 +173,7 @@ export default async function decorate(block) {
     arrows: false,
     dots: true,
     infinite: true,
-    autoplay: false,
+    autoplay: true,
     speed: 800,
     fade: true,
     cssEase: 'ease-in-out',
