@@ -23,7 +23,7 @@
     width: 250px;
     height: 250px;
     border-radius: 50%;
-    background: rgba(59, 74, 82, 0.2);
+    /* background: rgba(59, 74, 82, 0.2); */
 }
 
 .autoslider-wrapper {
@@ -47,8 +47,4 @@
 
 .slick-track {
     width: 100% !important;
-}
-
-.slick-initialized .slick-slide:not(.slick-active) {
-    display: none;
 }
