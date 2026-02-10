@@ -141,6 +141,7 @@ export default async function decorate(block) {
     // Move instrumentation for Universal Editor support
     if (item.row) {
       moveInstrumentation(item.row, slide);
+      item.row.remove(); // Remove original row after moving instrumentation
     }
 
     return slide;
