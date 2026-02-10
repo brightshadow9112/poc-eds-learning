@@ -88,8 +88,11 @@ export default async function decorate(block) {
 
   const originalRows = [...block.querySelectorAll(':scope > div')];
   const items = originalRows.map((row) => {
-    const img = row.querySelector('img');
-    const picture = row.querySelector('picture');
+    // Access children by index to support referenced images (like videoplaylist)
+    const [c0] = row.children;
+    const img = c0?.querySelector('img') || row.querySelector('img');
+    const picture = c0?.querySelector('picture') || row.querySelector('picture');
+    
     if (!img) return null;
     
     return {
@@ -159,15 +162,14 @@ export default async function decorate(block) {
     }, ms));
   });
 
-  // Initialize Slick with autoplay
+  // Initialize Slick
   $(slider).slick({
     slidesToShow: 1,
     slidesToScroll: 1,
     arrows: false,
     dots: true,
     infinite: true,
-    autoplay: true,
-    autoplaySpeed: 5000, // 5 seconds delay (change to 5 for 5ms if really needed)
+    autoplay: false,
     speed: 800,
     fade: true,
     cssEase: 'ease-in-out',
