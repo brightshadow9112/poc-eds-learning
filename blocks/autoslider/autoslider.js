@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { loadScript } from '../../scripts/aem.js';
-import { moveInstrumentation } from '../../scripts/scripts.js';
+import { isUniversalEditorActive, moveInstrumentation } from '../../scripts/scripts.js';
 
 function el(tag, attrs = {}, kids) {
   const n = document.createElement(tag);
@@ -106,10 +106,8 @@ export default async function decorate(block) {
 
   if (!items.length) return;
 
-  // Check if in authoring mode to preserve DOM structure for Universal Editor
-  const isAuthoring =
-    document.documentElement.classList.contains('editor') ||
-    window.location.search.includes('editor');
+  // Preserve DOM structure for Universal Editor
+  const isAuthoring = isUniversalEditorActive();
 
   if (!isAuthoring) {
     block.textContent = '';
@@ -141,10 +139,6 @@ export default async function decorate(block) {
     // Move instrumentation for Universal Editor support
     if (item.row) {
       moveInstrumentation(item.row, slide);
-      // Only remove original row when NOT in authoring mode
-      if (!isAuthoring) {
-        item.row.remove();
-      }
     }
 
     return slide;
