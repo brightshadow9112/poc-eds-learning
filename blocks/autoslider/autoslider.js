@@ -136,7 +136,7 @@ export default async function decorate(block) {
     slidesToShow: 1,
     slidesToScroll: 1,
     arrows: false,
-    dots: true,
+    dots: false,
     infinite: true,
     autoplay: true,
     speed: 800,
