@@ -278,16 +278,8 @@
         "value": "",
         "options": [
           {
-            "name": "Default",
-            "value": ""
-          },
-          {
-            "name": "Mobile",
-            "value": "mobile"
-          },
-          {
-            "name": "Desktop",
-            "value": "desktop"
+            "name": "Mobile-only",
+            "value": "mobile-only"
           }
         ]
       }
