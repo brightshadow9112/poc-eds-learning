@@ -49,7 +49,10 @@ export default async function decorate(block) {
   const $ = window.jQuery;
 
   const originalRows = [...block.querySelectorAll(':scope > div')];
-  const items = originalRows.map((row) => {
+  
+  // Capture and preserve the authored order using data-aue-resource
+  // This ensures order is maintained when Universal Editor updates the block
+  const items = originalRows.map((row, index) => {
     // Access children by index to support referenced images (like videoplaylist)
     const [c0] = row.children;
     const img = c0?.querySelector('img') || row.querySelector('img');
@@ -57,16 +60,43 @@ export default async function decorate(block) {
     
     if (!img) return null;
     
+    // Capture the data-aue-resource for order preservation
+    const aueResource = row.getAttribute('data-aue-resource') || '';
+    
     return {
       img,
       picture,
       src: img.src,
       alt: img.alt || 'Slide image',
       row,
+      aueResource,
+      originalIndex: index, // Preserve the original DOM order
     };
   }).filter(Boolean);
 
   if (!items.length) return;
+
+  // Sort items based on data-aue-resource to ensure consistent ordering
+  // The Universal Editor uses resource paths that maintain the authored sequence
+  items.sort((a, b) => {
+    // If both have aueResource, compare them to maintain authored order
+    if (a.aueResource && b.aueResource) {
+      // Extract item numbers from resource paths for proper numeric sorting
+      // Handles patterns like: /content/.../item_0, /content/.../item_1, etc.
+      const aMatch = a.aueResource.match(/item[-_](\d+)$/i);
+      const bMatch = b.aueResource.match(/item[-_](\d+)$/i);
+      
+      if (aMatch && bMatch) {
+        // Numeric comparison for item numbers (handles 1, 2, ..., 10, 11 correctly)
+        return parseInt(aMatch[1], 10) - parseInt(bMatch[1], 10);
+      }
+      
+      // Fallback to lexicographic comparison for non-standard patterns
+      return a.aueResource.localeCompare(b.aueResource);
+    }
+    // Fallback to original index if no resource paths
+    return a.originalIndex - b.originalIndex;
+  });
 
   block.classList.add('autoslider-container');
 
@@ -85,7 +115,7 @@ export default async function decorate(block) {
         'aria-roledescription': 'slide',
         'aria-label': `${i + 1} of ${items.length}`,
       },
-      el('div', { class: 'autoslider-image-wrapper' }, 
+      el('div', { class: 'autoslider-image-wrapper' },
         item.picture ? item.picture.cloneNode(true) : item.img.cloneNode(true)
       ),
     );
