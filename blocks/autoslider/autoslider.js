@@ -105,6 +105,9 @@ export default async function decorate(block) {
     'aria-label': 'Auto slider',
   });
 
+  // Track which rows were successfully processed into slides
+  const processedRows = new Set();
+
   items.forEach((item, i) => {
     const slide = el(
       'div',
@@ -122,13 +125,20 @@ export default async function decorate(block) {
 
     // Move instrumentation from original row to new slide for Universal Editor support
     moveInstrumentation(item.row, slide);
-    // Remove the original row after moving instrumentation
-    // item.row.remove();
+    
+    // Track this row as processed
+    processedRows.add(item.row);
 
     slider.append(slide);
   });
   
-  originalRows.forEach(row => row.remove());
+  // Only remove rows that were successfully processed into slides
+  // This preserves empty autoslides for authoring purposes
+  originalRows.forEach(row => {
+    if (processedRows.has(row)) {
+      row.remove();
+    }
+  });
 
   block.append(slider);
 
