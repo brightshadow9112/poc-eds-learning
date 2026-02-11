@@ -91,13 +91,13 @@ export default async function decorate(block) {
     );
 
     // Move instrumentation from original row to new slide for Universal Editor support
-    if (item) {
       moveInstrumentation(item, slide);
       // Remove the original row after moving instrumentation
-      // item.remove();
-    }
+      // 
 
     slider.append(slide);
+
+    item.remove();
   });
 
   block.append(slider);
