@@ -44,44 +44,6 @@ async function ensureSlickAndJquery() {
     throw new Error('Slick failed to initialize: jQuery.fn.slick is missing.');
 }
 
-function waitForNonZeroWidth(node, timeoutMs = 4000) {
-  const start = performance.now();
-  return new Promise((resolve) => {
-    const tick = () => {
-      const w = node?.getBoundingClientRect?.().width || 0;
-      if (w > 2) return resolve(true);
-      if (performance.now() - start > timeoutMs) return resolve(false);
-      requestAnimationFrame(tick);
-    };
-    tick();
-  });
-}
-
-function observeVisibilityRefresh(nodes) {
-  const refresh = () =>
-    nodes.forEach(
-      (n) =>
-        n?.slick?.setPosition && !n.slick.unslicked && n.slick.setPosition(),
-    );
-
-  if (window.ResizeObserver) {
-    const ro = new ResizeObserver(refresh);
-    nodes.forEach((n) => ro.observe(n));
-  }
-  if (window.IntersectionObserver) {
-    const io = new IntersectionObserver(
-      (entries) => entries.some((e) => e.isIntersecting) && refresh(),
-      {
-        threshold: 0.01,
-      },
-    );
-    nodes.forEach((n) => io.observe(n));
-  }
-
-  window.addEventListener('resize', refresh, { passive: true });
-  window.addEventListener('load', refresh, { passive: true });
-}
-
 export default async function decorate(block) {
   await ensureSlickAndJquery();
   const $ = window.jQuery;
@@ -129,10 +91,10 @@ export default async function decorate(block) {
     );
 
     // Move instrumentation from original row to new slide for Universal Editor support
-    if (item.row) {
-      moveInstrumentation(item.row, slide);
+    if (item) {
+      moveInstrumentation(item, slide);
       // Remove the original row after moving instrumentation
-      item.row.remove();
+      // item.remove();
     }
 
     slider.append(slide);
@@ -140,21 +102,7 @@ export default async function decorate(block) {
 
   block.append(slider);
 
-  const visibleNow = await waitForNonZeroWidth(slider, 4000);
-
-  $(slider).on('init', () => {
-    observeVisibilityRefresh([slider]);
-    if (slider?.slick?.setPosition && !slider.slick.unslicked) {
-      slider.slick.setPosition();
-    }
-    [100, 300].forEach((ms) => setTimeout(() => {
-      if (slider?.slick?.setPosition && !slider.slick.unslicked) {
-        slider.slick.setPosition();
-      }
-    }, ms));
-  });
-
-  // Initialize Slick
+  // Initialize Slick carousel
   $(slider).slick({
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -169,12 +117,4 @@ export default async function decorate(block) {
     pauseOnFocus: true,
     adaptiveHeight: true,
   });
-
-  if (!visibleNow) {
-    [500, 1200].forEach((ms) => setTimeout(() => {
-      if (slider?.slick?.setPosition && !slider.slick.unslicked) {
-        slider.slick.setPosition();
-      }
-    }, ms));
-  }
 }
