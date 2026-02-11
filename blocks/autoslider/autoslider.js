@@ -106,14 +106,6 @@ export default async function decorate(block) {
 
   if (!items.length) return;
 
-  // Check if in authoring mode to preserve DOM structure for Universal Editor
-  const isAuthoring =
-    document.documentElement.classList.contains('editor') ||
-    window.location.search.includes('editor');
-
-  if (!isAuthoring) {
-    block.textContent = '';
-  }
   block.classList.add('autoslider-container');
 
   const slider = el('div', {
@@ -136,9 +128,11 @@ export default async function decorate(block) {
       ),
     );
 
-    // Move instrumentation for Universal Editor support
+    // Move instrumentation from original row to new slide for Universal Editor support
     if (item.row) {
       moveInstrumentation(item.row, slide);
+      // Remove the original row after moving instrumentation
+      item.row.remove();
     }
 
     slider.append(slide);
