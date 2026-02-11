@@ -268,6 +268,32 @@
     ]
   },
   {
+    "id": "autoslider",
+    "fields": [
+      {
+        "component": "select",
+        "name": "classes",
+        "label": "Display Type",
+        "description": "Choose display type for the autoslider",
+        "value": "",
+        "options": [
+          {
+            "name": "Default",
+            "value": ""
+          },
+          {
+            "name": "Mobile",
+            "value": "mobile"
+          },
+          {
+            "name": "Desktop",
+            "value": "desktop"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "autoslide",
     "fields": [
       {
