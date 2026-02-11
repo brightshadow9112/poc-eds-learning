@@ -123,10 +123,12 @@ export default async function decorate(block) {
     // Move instrumentation from original row to new slide for Universal Editor support
     moveInstrumentation(item.row, slide);
     // Remove the original row after moving instrumentation
-    item.row.remove();
+    // item.row.remove();
 
     slider.append(slide);
   });
+  
+  originalRows.forEach(row => row.remove());
 
   block.append(slider);
 
